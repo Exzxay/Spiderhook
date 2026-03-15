@@ -1,11 +1,20 @@
-apply plugin: "org.jetbrains.intellij"
+// Copied and adapted from plugin "Graph Database Support"
+// by Neueda Technologies, Ltd.
+// Modified by Michel de Lambilly, 2026
 
-intellij {
-    version = intellijSdkVersion
-    plugins = ['java']
+apply plugin: "org.jetbrains.intellij.platform.module"
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdea(providers.gradleProperty('platformVersion'))
+        bundledPlugin('com.intellij.java')
+    }
+
     implementation project(':graph-database-plugin')
     implementation project(':ui:jetbrains')
 }

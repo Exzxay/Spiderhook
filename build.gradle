@@ -1,23 +1,21 @@
 // Copied and adapted from plugin "Graph Database Support"
 // by Neueda Technologies, Ltd.
 // Modified by Alberto Venturini, 2022
+// Modified by Michel de Lambilly, 2026
+
 plugins {
     id 'idea'
 
     // Java support
     id 'java'
 
-    // Gradle IntelliJ Plugin
-    id 'org.jetbrains.intellij' version "$versionGradleIntelliJ"
-
-    // https://github.com/researchgate/gradle-release
-    id 'net.researchgate.release' version '2.8.0'
+    id 'org.jetbrains.intellij.platform' version '2.13.0' apply false
+    id 'org.jetbrains.intellij.platform.module' version '2.13.0' apply false
 
     // JetBrain's Gradle Changelog Plugin
     // https://github.com/JetBrains/gradle-changelog-plugin
     id 'org.jetbrains.changelog' version "$versionGradleChangelog"
-
-    id 'org.jetbrains.grammarkit' version "2022.3.1"
+    id 'org.jetbrains.grammarkit' version "$versionGradleGrammarKit"
 }
 
 apply plugin: 'idea'
@@ -34,22 +32,11 @@ allprojects {
     }
 
     apply plugin: 'java'
-//    apply plugin: 'checkstyle'
-    apply plugin: 'org.jetbrains.grammarkit'
 
-    sourceCompatibility = 17
-    targetCompatibility = 17
-
-//    checkstyle {
-//        toolVersion = "7.0"
-//        configFile = new File(checkstyleConfigDir, "checkstyle.xml")
-//        configProperties.checkstyleConfigDir = checkstyleConfigDir
-//        ignoreFailures = true
-//    }
-
-    intellij {
-        version = intellijSdkVersion
-        plugins = ['java']
+    java {
+        def javaVersion = providers.gradleProperty('javaVersion').get()
+        sourceCompatibility = JavaVersion.toVersion(javaVersion)
+        targetCompatibility = JavaVersion.toVersion(javaVersion)
     }
 }
 
@@ -57,26 +44,5 @@ test {
     systemProperty 'graphDatabaseSupportDevelopment', 'true'
 }
 
-// See https://github.com/researchgate/gradle-release
-release {
-    failOnCommitNeeded = true
-    failOnPublishNeeded = true
-    failOnSnapshotDependencies = true
-    failOnUnversionedFiles = true
-    failOnUpdateNeeded = true
-    revertOnFail = true
-
-    buildTasks = ['build']
-
-    tagTemplate = '${version}'
-    preCommitText = '[release]'
-    preTagCommitMessage = ' [skip ci] Pre tag commit: '
-    tagCommitMessage = ' Creating tag: '
-    newVersionCommitMessage = ' [skip ci] New version commit: '
-
-    git {
-        requireBranch = 'master'
-    }
-}
-
-//afterReleaseBuild.dependsOn publishPlugin
+// Note: net.researchgate.release plugin removed — incompatible with Gradle 9
+// (accesses removed internal API StartParameterInternal.settingsFile)

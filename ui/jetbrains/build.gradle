@@ -1,33 +1,33 @@
 // Copied and adapted from plugin "Graph Database Support"
 // by Neueda Technologies, Ltd.
 // Modified by Alberto Venturini, 2022
-apply plugin: "org.jetbrains.intellij"
-
-intellij {
-    version = intellijSdkVersion
-    instrumentCode = true
-    plugins = ['java']
+// Modified by Michel de Lambilly, 2026
+apply plugin: "org.jetbrains.intellij.platform.module"
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdea(providers.gradleProperty('platformVersion'))
+        bundledPlugin('com.intellij.java')
+    }
+
     implementation project(":platform")
-
     implementation project(':language:cypher')
-
     implementation project(':database:neo4j')
     implementation project(':database:api')
-
     implementation "org.neo4j.driver:neo4j-java-driver:$versionNeo4jJavaBoltDriver"
-
     implementation project(':ui:visualization')
-
     implementation "de.sciss:prefuse-core:$versionPrefuse"
-
     implementation("com.fasterxml.jackson.core:jackson-core:$versionJacksonMapper")
     implementation("com.fasterxml.jackson.core:jackson-databind:$versionJacksonMapper")
-
-    testImplementation "junit:junit:$versionJunit"
+    testImplementation "org.junit.jupiter:junit-jupiter:$versionJunit"
     testImplementation "org.assertj:assertj-core:$versionAssertj"
     testImplementation "org.mockito:mockito-core:$versionMockito"
 }
-
+test {
+    useJUnitPlatform()
+}

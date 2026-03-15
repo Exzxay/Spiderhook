@@ -1,12 +1,16 @@
 // Copied and adapted from plugin "Graph Database Support"
 // by Neueda Technologies, Ltd.
 // Modified by Alberto Venturini, 2022
-apply plugin: "org.jetbrains.intellij"
-
-intellij {
-    version = intellijSdkVersion
-    instrumentCode = true
+// Modified by Michel de Lambilly, 2026
+apply plugin: "org.jetbrains.intellij.platform.module"
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdea(providers.gradleProperty('platformVersion'))
+    }
 }

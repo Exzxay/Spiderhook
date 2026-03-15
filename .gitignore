@@ -102,3 +102,10 @@ idea-flex.skeleton
 
 gen/
 
+# IntelliJ Platform Gradle Plugin local cache
+.intellijPlatform/
+
+# Claude Code local data (personal memory, local settings)
+.claude/*
+!.claude/commands/
+

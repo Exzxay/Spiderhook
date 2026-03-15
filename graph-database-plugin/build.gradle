@@ -1,58 +1,58 @@
 // Copied and adapted from plugin "Graph Database Support"
 // by Neueda Technologies, Ltd.
 // Modified by Alberto Venturini, 2022
+// Modified by Michel de Lambilly, 2026
+
 import java.text.SimpleDateFormat
 import org.jetbrains.changelog.Changelog
 
-apply plugin: "org.jetbrains.intellij"
+apply plugin: "org.jetbrains.intellij.platform"
+
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
 
 dependencies {
+    intellijPlatform {
+        intellijIdea(providers.gradleProperty('platformVersion'))
+        bundledPlugin('com.intellij.java')
+        pluginVerifier()
+    }
+
     implementation project(':language:cypher')
-    implementation project(path: ':ui:jetbrains', configuration: 'instrumentedJar')
+    implementation project(':ui:jetbrains')
 }
 
-intellij {
-    version = intellijSdkVersion
-    pluginName = 'GraphDatabase'
-    //updateSinceUntilBuild = false
-    sameSinceUntilBuild = false
+intellijPlatform {
+    pluginConfiguration {
+        name = 'GraphDatabase'
 
-    publishPlugin {
-        token = System.getenv("INTELLIJ_TOKEN")
+        ideaVersion {
+            sinceBuild = providers.gradleProperty('sinceBuild')
+            untilBuild = providers.gradleProperty('untilBuild')
+        }
+
+        changeNotes = (providers.provider {
+            changelog.getAll().values()
+                    .collect { it.withHeader(true) }
+                    .collect { it.withLinkedHeader(false) }
+                    .collect { it.withSummary(true) }
+                    .collect { changelog.renderItem(it as Changelog.Item, Changelog.OutputType.HTML) }
+                    .join('<br>\n')
+        } as Provider<String>)
     }
 
-    if (System.getenv("CI_SERVER") == "yes") {
-        downloadSources = false
-    } else {
-        downloadSources = true
+    publishing {
+        token = providers.environmentVariable('INTELLIJ_TOKEN')
     }
 
-    def homePath = System.properties['user.home']
-    sandboxDir = "${homePath}/.intellij/graphdb"
-    plugins = ['java']
-}
-
-// See https://plugins.jetbrains.com/docs/intellij/configuring-plugin-project.html#patching-the-plugin-configuration-file
-patchPluginXml {
-    sinceBuild = "223.0"
-    //untilBuild = "233.*"
-    untilBuild = "999.0"
-
-    def allChanges = {
-        changelog.getAll().values()
-                .collect { it.withHeader(true) }
-                .collect { it.withLinkedHeader(false) }
-                .collect { it.withSummary(true) }
-                .collect { changelog.renderItem(it as Changelog.Item, Changelog.OutputType.HTML) }
-                .join('<br>\n')
-    }
-
-    changeNotes.set(
-        allChanges()
-    )
+    sandboxContainer = project.file("${System.getProperty('user.home')}/.intellij/graphdb")
 }
 
 changelog {
+    version = providers.gradleProperty('pluginVersion')
     header = "[${-> version.get()}] - ${new SimpleDateFormat("yyyy-MM-dd").format(new Date())}"
     headerParserRegex = ~/(\d+\.\d+\.\d+[\-\w]*)/
     keepUnreleasedSection = true

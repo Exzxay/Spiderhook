@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'graphdb-intellij-plugin'
+
 // Languages
 include 'language'
 include 'language:cypher'
@@ -20,6 +28,5 @@ include 'platform'
 include 'testing'
 include 'testing:common'
 include 'testing:manual'
-include 'testing:database'
 include 'testing:integration-neo4j'
 

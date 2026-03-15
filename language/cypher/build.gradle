@@ -1,16 +1,28 @@
 // Copied and adapted from plugin "Graph Database Support"
 // by Neueda Technologies, Ltd.
 // Modified by Alberto Venturini, 2022
+// Modified by Michel de Lambilly, 2026
 
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
 import org.jetbrains.grammarkit.tasks.GenerateParserTask
-
-apply plugin: "org.jetbrains.intellij"
+apply plugin: "org.jetbrains.intellij.platform.module"
 apply plugin: "org.jetbrains.grammarkit"
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
 
-intellij {
-    version = intellijSdkVersion
-    plugins = ['java']
+dependencies {
+    intellijPlatform {
+        intellijIdea(providers.gradleProperty('platformVersion'))
+        bundledPlugin('com.intellij.java')
+    }
+
+    implementation project(":platform")
+
+    testImplementation "org.mockito:mockito-core:$versionMockito"
+    testImplementation "org.assertj:assertj-core:$versionAssertj"
 }
 
 tasks.register("generateCypherLexer", GenerateLexerTask.class) {
@@ -40,11 +52,4 @@ sourceSets {
             srcDirs 'src/main/java', 'src/main/gen'
         }
     }
-}
-
-dependencies {
-    implementation project(":platform")
-
-    testImplementation "org.mockito:mockito-core:$versionMockito"
-    testImplementation "org.assertj:assertj-core:$versionAssertj"
 }
