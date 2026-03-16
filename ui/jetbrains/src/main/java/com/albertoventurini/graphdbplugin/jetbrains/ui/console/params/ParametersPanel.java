@@ -36,8 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
-import static com.albertoventurini.graphdbplugin.jetbrains.ui.console.event.QueryParametersRetrievalErrorEvent.*;
-
 public class ParametersPanel implements ParametersProvider {
 
     private static final FileDocumentManager FILE_DOCUMENT_MANAGER = FileDocumentManager.getInstance();
@@ -76,17 +74,20 @@ public class ParametersPanel implements ParametersProvider {
         service.registerParametersProvider(this);
         MessageBusConnection mbConnection = messageBus.connect();
         mbConnection.subscribe(QueryParametersRetrievalErrorEvent.QUERY_PARAMETERS_RETRIEVAL_ERROR_EVENT_TOPIC,
-                (exception, editor) -> {
-                    if (editor == null) {
-                        return;
+                new QueryParametersRetrievalErrorEvent() {
+                    @Override
+                    public void handleError(Exception exception, Editor editor) {
+                        if (editor == null) {
+                            return;
+                        }
+                        String errorMessage;
+                        if (exception.getMessage() != null) {
+                            errorMessage = String.format("%s: %s", PARAMS_ERROR_COMMON_MSG, exception.getMessage());
+                        } else {
+                            errorMessage = PARAMS_ERROR_COMMON_MSG;
+                        }
+                        HintManager.getInstance().showErrorHint(editor, errorMessage);
                     }
-                    String errorMessage;
-                    if (exception.getMessage() != null) {
-                        errorMessage = String.format("%s: %s", PARAMS_ERROR_COMMON_MSG, exception.getMessage());
-                    } else {
-                        errorMessage = PARAMS_ERROR_COMMON_MSG;
-                    }
-                    HintManager.getInstance().showErrorHint(editor, errorMessage);
                 });
 
         mbConnection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
