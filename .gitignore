@@ -109,3 +109,6 @@ gen/
 .claude/*
 !.claude/commands/
 
+# Local documentation (not versioned)
+documents/
+
