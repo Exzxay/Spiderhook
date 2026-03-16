@@ -27,7 +27,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * <br/>
  * If none of the handlers can handle the data source type, then this service does nothing.
  */
-@Service
+@Service(Service.Level.PROJECT)
 public final class DataSourceMetadataUpdateService {
 
     private final DataSourcesComponentMetadata dataSourcesComponent;
