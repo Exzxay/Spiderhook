@@ -3,6 +3,7 @@
  * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
  * by Neueda Technologies, Ltd.
  * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
  */
 package com.albertoventurini.graphdbplugin.test.integration.neo4j.util.base;
 
@@ -24,7 +25,7 @@ import java.util.Map;
 
 public abstract class BaseIntegrationTest extends LightJavaCodeInsightFixtureTestCase {
 
-    private static final String NEO4J52 = "neo4j52";
+    private static final String NEO4J526 = "neo4j526";
     private static final String UNAVAILABLE_DS = "unavailable";
     protected CypherMetadataContainer metadata;
     private Components components;
@@ -121,7 +122,7 @@ public abstract class BaseIntegrationTest extends LightJavaCodeInsightFixtureTes
 
         public DataSourceApi neo4j52() {
             if (neo4j52DataSource == null) {
-                neo4j52DataSource = getNeo4jDataSource(NEO4J52, Neo4jContainerServers.VERSION_5_2.getInstance());
+                neo4j52DataSource = getNeo4jDataSource(NEO4J526, Neo4jContainerServers.VERSION_5_26.getInstance());
             }
             return neo4j52DataSource;
         }

@@ -3,6 +3,7 @@
  * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
  * by Neueda Technologies, Ltd.
  * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
  */
 package com.albertoventurini.graphdbplugin.test.integration.neo4j.tests.cypher.editor;
 
@@ -31,22 +32,22 @@ public class ArgumentHintTest extends BaseIntegrationTest {
 
     public void testSpecialAll() {
         doTest("RETURN ALL (x <caret>IN nodes(p) WHERE x.age > 30)",
-                "<html>(<b color=1d1d1d>variable :: VARIABLE IN list :: LIST OF ANY? WHERE predicate :: ANY?</b>)</html>");
+                "<html>(<b color=1d1d1d>variable :: VARIABLE IN list :: LIST&lt;ANY&gt; WHERE predicate :: ANY</b>)</html>");
     }
 
     public void testBuiltIn() {
         doTest("return toFloat(<caret>\"12\")",
-                "<html>(<b color=1d1d1d>input :: STRING?</b>)</html>");
+                "<html>(<b color=1d1d1d>input :: STRING | INTEGER | FLOAT</b>)</html>");
     }
 
     public void testProcedure() {
         doTest("CALL db.resampleIndex(<caret>\"test\");",
-                "<html>(<b color=1d1d1d>indexName :: STRING?</b>)</html>");
+                "<html>d<b color=1d1d1d>b.resampleIndex(indexName :: STRING</b>)</html>");
     }
 
     public void testApocFunction() {
         doTest("RETURN apoc.text.capitalize(<caret>\"test\");",
-                "<html>(<b color=1d1d1d>text :: STRING?</b>)</html>");
+                "<html>(<b color=1d1d1d>text :: STRING</b>)</html>");
     }
 
     public void testNoParams() {

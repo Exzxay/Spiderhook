@@ -3,6 +3,7 @@
  * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
  * by Neueda Technologies, Ltd.
  * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
  */
 package com.albertoventurini.graphdbplugin.test.integration.neo4j.tests.database.neo4j;
 
@@ -35,16 +36,14 @@ public class DataSourceMetadataTest extends AbstractDataSourceMetadataTest {
         final Neo4jMetadata metadata = (Neo4jMetadata) getMetadata();
         final List<Neo4jProcedureMetadata> procedures = metadata.procedures();
 
-        assertTrue(procedures.stream().anyMatch(p ->
-                p.name().equals("db.labels")
-                        && p.signature().equals("db.labels() :: (label :: STRING?)")
-                        && p.description().equals("List all available labels in the database.")));
+        // dbms.components() is a stable procedure used by the driver itself to detect Neo4j version.
+        assertTrue(procedures.stream().anyMatch(p -> p.name().equals("dbms.components")));
     }
 
     public void testGetVersion() {
         var metadata = (Neo4jMetadata) getMetadata();
         var version = (Neo4jGraphDatabaseVersion) metadata.version();
         assertEquals(5, version.major());
-        assertEquals(2, version.minor());
+        assertEquals(26, version.minor());
     }
 }

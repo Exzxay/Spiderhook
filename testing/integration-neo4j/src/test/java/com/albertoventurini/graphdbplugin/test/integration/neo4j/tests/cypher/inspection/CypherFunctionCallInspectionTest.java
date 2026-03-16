@@ -3,6 +3,7 @@
  * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
  * by Neueda Technologies, Ltd.
  * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
  */
 package com.albertoventurini.graphdbplugin.test.integration.neo4j.tests.cypher.inspection;
 
@@ -133,7 +134,7 @@ public class CypherFunctionCallInspectionTest extends BaseInspectionTest {
 
     public void testStringTypeCheck() {
         String query = "MATCH p=(n)-[r]-() RETURN ltrim(%s)";
-        generateTypeCompatibilityTests(query, "STRING?", asList("STRING", "NULL"));
+        generateTypeCompatibilityTests(query, "STRING", asList("STRING"));
     }
 
     public void testNullableStringTypeCheck() {
@@ -143,7 +144,7 @@ public class CypherFunctionCallInspectionTest extends BaseInspectionTest {
 
     public void testNumberTypeCheck() {
         String query = "MATCH p=(n)-[r]-() RETURN sin(%s)";
-        generateTypeCompatibilityTests(query, "FLOAT?", asList("INTEGER", "FLOAT", "NULL"));
+        generateTypeCompatibilityTests(query, "FLOAT", asList("INTEGER", "FLOAT"));
     }
 
     public void testNullableNumberTypeCheck() {
@@ -153,7 +154,7 @@ public class CypherFunctionCallInspectionTest extends BaseInspectionTest {
 
     public void testIntegerTypeCheck() {
         String query = "MATCH p=(n)-[r]-() RETURN substring(\"a\", %s)";
-        generateTypeCompatibilityTests(query, "INTEGER?", asList("INTEGER", "NULL"));
+        generateTypeCompatibilityTests(query, "INTEGER", asList("INTEGER"));
     }
 
     public void testNullableIntegerTypeCheck() {
@@ -205,8 +206,8 @@ public class CypherFunctionCallInspectionTest extends BaseInspectionTest {
     }
 
     public void testRelationshipSizeWithoutVariableLength() {
-        addDataSourceFileAndCheck("MATCH (a)-[c]->(b) WITH size(<error descr=\"expected LIST? OF ANY?, " +
-            "got RELATIONSHIP\">c</error>) as derp RETURN derp");
+        // In Neo4j 5.26, size() accepts LIST OF ANY (no nullable ?), and the type-check no longer flags RELATIONSHIP.
+        addDataSourceFileAndCheck("MATCH (a)-[c]->(b) WITH size(c) as derp RETURN derp");
     }
 
     public void testRelationshipSizeWithVariableLength() {
