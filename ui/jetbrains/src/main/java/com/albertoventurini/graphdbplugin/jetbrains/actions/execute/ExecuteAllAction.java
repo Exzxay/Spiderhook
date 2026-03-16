@@ -57,7 +57,7 @@ public class ExecuteAllAction extends AnAction {
                 new ExecuteQueryPayload(statementCollector.getQueries(), statementCollector.getParameters(), psiFile.getName());
             ConsoleToolWindow.ensureOpen(project);
 
-            DataSourcesComponent dataSourcesComponent = project.getComponent(DataSourcesComponent.class);
+            DataSourcesComponent dataSourcesComponent = project.getService(DataSourcesComponent.class);
             ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
                 "Choose Data Source",
                 new ChooseDataSourceActionGroup(messageBus, dataSourcesComponent, executeQueryPayload),

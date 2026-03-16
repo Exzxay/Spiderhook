@@ -138,11 +138,20 @@ public class GraphConsoleView implements Disposable {
                 return callback;
             });
 
-            project.getMessageBus().connect().subscribe(OpenTabEvent.OPEN_TAB_TOPIC, this::selectTab);
+            project.getMessageBus().connect().subscribe(OpenTabEvent.OPEN_TAB_TOPIC, new OpenTabEvent() {
+                @Override
+                public void openTab(String name) {
+                    selectTab(name);
+                }
+            });
 
             AtomicInteger tabId = new AtomicInteger(0);
-            project.getMessageBus().connect().subscribe(QueryPlanEvent.QUERY_PLAN_EVENT,
-                    (query, result) -> createNewQueryPlanTab(query, result, tabId.incrementAndGet()));
+            project.getMessageBus().connect().subscribe(QueryPlanEvent.QUERY_PLAN_EVENT, new QueryPlanEvent() {
+                @Override
+                public void queryPlanReceived(String query, GraphQueryResult result) {
+                    createNewQueryPlanTab(query, result, tabId.incrementAndGet());
+                }
+            });
 
             // Actions
             final ActionGroup consoleActionGroup = (ActionGroup)
