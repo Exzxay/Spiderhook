@@ -16,6 +16,7 @@ import com.albertoventurini.graphdbplugin.jetbrains.database.VersionService;
 import com.albertoventurini.graphdbplugin.jetbrains.services.ExecutorService;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.metadata.MetadataRetrieveEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.albertoventurini.graphdbplugin.language.cypher.completion.metadata.CypherMetadataContainer;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+@Service(Service.Level.PROJECT)
 public class DataSourcesComponentMetadata {
 
     private final Map<DataSourceType, MetadataBuilder> handlers = new HashMap<>();
