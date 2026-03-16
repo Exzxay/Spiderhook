@@ -44,6 +44,12 @@ intellijPlatform {
         } as Provider<String>)
     }
 
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+
     publishing {
         token = providers.environmentVariable('INTELLIJ_TOKEN')
     }

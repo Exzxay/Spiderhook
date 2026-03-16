@@ -10,7 +10,7 @@ import com.albertoventurini.graphdbplugin.database.api.data.NoIdGraphEntity;
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.DataSourceApi;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.tree.Neo4jEntityViewNodeType;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.tree.NodeType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.util.Optional;

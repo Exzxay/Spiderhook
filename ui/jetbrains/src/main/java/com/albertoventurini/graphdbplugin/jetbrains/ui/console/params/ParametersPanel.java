@@ -13,7 +13,6 @@ import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.icons.AllIcons;
 import com.intellij.json.JsonFileType;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -21,9 +20,11 @@ import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.fileEditor.impl.EditorTabPresentationUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileEvent;
-import com.intellij.openapi.vfs.VirtualFileListener;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import java.util.List;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
@@ -133,11 +134,16 @@ public class ParametersPanel implements ParametersProvider {
             LightVirtualFile lightVirtualFile = new LightVirtualFile("", JsonFileType.INSTANCE, params);
             Document document = FileDocumentManager.getInstance().getDocument(lightVirtualFile);
             fileSpecificParamEditor = createEditor(project, document);
-            VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
+            project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
                 @Override
-                public void contentsChanged(@NotNull VirtualFileEvent event) {
-                    if (event.getFile().equals(cypherFile) && document != null) {
-                        FileUtil.setParams(cypherFile, document.getText());
+                public void after(@NotNull List<? extends VFileEvent> events) {
+                    for (VFileEvent event : events) {
+                        if (event instanceof VFileContentChangeEvent
+                                && cypherFile.equals(event.getFile())
+                                && document != null) {
+                            FileUtil.setParams(cypherFile, document.getText());
+                            break;
+                        }
                     }
                 }
             });

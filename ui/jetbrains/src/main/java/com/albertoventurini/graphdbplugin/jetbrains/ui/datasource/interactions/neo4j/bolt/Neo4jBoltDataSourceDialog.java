@@ -17,7 +17,7 @@ import com.intellij.util.ui.AsyncProcessIcon;
 import com.albertoventurini.graphdbplugin.database.neo4j.bolt.Neo4jBoltConfiguration;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.DataSourcesView;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.interactions.DataSourceDialog;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

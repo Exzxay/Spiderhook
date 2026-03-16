@@ -6,7 +6,6 @@
  */
 package com.albertoventurini.graphdbplugin.jetbrains.ui.console;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;

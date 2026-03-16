@@ -8,7 +8,6 @@ package com.albertoventurini.graphdbplugin.jetbrains.database;
 
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.DataSourceApi;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.albertoventurini.graphdbplugin.database.api.GraphDatabaseApi;

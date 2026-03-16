@@ -7,12 +7,12 @@
 package com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.actions;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.ui.AnActionButton;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.DataSourcesView;
 import org.jetbrains.annotations.NotNull;
 
-public class RefreshDataSourcesAction extends AnActionButton {
+public class RefreshDataSourcesAction extends AnAction {
 
     private final DataSourcesView dataSourcesView;
 

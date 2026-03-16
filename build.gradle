@@ -22,7 +22,7 @@ apply plugin: 'idea'
 apply plugin: 'org.jetbrains.changelog'
 
 def configDir = new File(buildscript.sourceFile.parentFile, 'config')
-ext.checkstyleConfigDir = "$configDir/checkstyle"
+ext.checkstyleConfigDir = configDir.absolutePath + "/checkstyle"
 
 allprojects {
 

@@ -13,6 +13,7 @@ dependencies {
     intellijPlatform {
         intellijIdea(providers.gradleProperty('platformVersion'))
         bundledPlugin('com.intellij.java')
+        bundledPlugin('com.intellij.modules.json')
     }
 
     implementation project(":platform")

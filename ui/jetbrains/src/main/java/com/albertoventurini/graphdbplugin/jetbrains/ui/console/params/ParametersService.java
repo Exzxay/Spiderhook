@@ -16,7 +16,7 @@ import com.google.common.base.Throwables;
 import com.intellij.psi.PsiElement;
 import com.albertoventurini.graphdbplugin.language.cypher.psi.CypherTypes;
 import com.albertoventurini.graphdbplugin.language.cypher.util.TraverseUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -13,4 +13,6 @@ dependencies {
     intellijPlatform {
         intellijIdea(providers.gradleProperty('platformVersion'))
     }
+
+    testImplementation "org.junit.jupiter:junit-jupiter:$versionJunit"
 }
