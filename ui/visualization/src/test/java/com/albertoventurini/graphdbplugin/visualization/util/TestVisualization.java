@@ -13,9 +13,9 @@ import com.albertoventurini.graphdbplugin.database.api.data.GraphPropertyContain
 import com.albertoventurini.graphdbplugin.database.api.data.GraphRelationship;
 import com.albertoventurini.graphdbplugin.visualization.PrefuseVisualization;
 import com.albertoventurini.graphdbplugin.visualization.services.LookAndFeelService;
-import org.junit.AfterClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Prepopulated with different combinations of nodes and relationships
  * Useful for experimentation when working on visualization
  */
-@Ignore("For development. Nothing to test.")
+@Disabled("For development. Nothing to test.")
 public class TestVisualization {
     private static AtomicInteger counter = new AtomicInteger();
     private static PrefuseVisualization vis = new PrefuseVisualization(mockLook());
@@ -118,7 +118,7 @@ public class TestVisualization {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void show() throws IOException {
         vis.paint();
         JComponent com = vis.getCanvas();

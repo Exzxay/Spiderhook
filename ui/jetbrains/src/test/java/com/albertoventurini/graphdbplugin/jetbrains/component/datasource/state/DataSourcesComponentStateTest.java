@@ -13,14 +13,14 @@ import java.util.*;
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.DataSourceType;
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.impl.DataSource;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DataSourcesComponentStateTest {
 
     private DataSourcesComponentState state;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         state = new DataSourcesComponentState();
     }

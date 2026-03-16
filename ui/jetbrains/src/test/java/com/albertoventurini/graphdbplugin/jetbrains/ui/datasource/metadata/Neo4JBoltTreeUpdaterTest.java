@@ -13,8 +13,8 @@ import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.i
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.tree.*;
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for the {@link Neo4jBoltTreeUpdater} class.
@@ -41,7 +41,7 @@ public class Neo4JBoltTreeUpdaterTest {
     private PatchedDefaultMutableTreeNode root;
     private PatchedDefaultMutableTreeNode datasource;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         root = new PatchedDefaultMutableTreeNode(RootTreeNodeModel.ROOT_NAME);
         final var dataSourceApi = new DataSourceV1(UUID, "local", DataSourceType.NEO4J_BOLT, new HashMap<>());

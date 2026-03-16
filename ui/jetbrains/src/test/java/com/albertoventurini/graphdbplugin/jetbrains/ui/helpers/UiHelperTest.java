@@ -7,7 +7,7 @@
 package com.albertoventurini.graphdbplugin.jetbrains.ui.helpers;
 
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

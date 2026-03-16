@@ -12,15 +12,12 @@ import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.metadat
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.metadata.dto.DataSourceContextMenu;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.metadata.dto.MetadataContextMenu;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.tree.*;
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.impl.DataSourceV1;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -30,13 +27,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test that the correct context menu is associated with
  * each node in the metadata tree.
  */
-@RunWith(JUnit4.class)
-public class ContextMenuTest extends LightJavaCodeInsightFixtureTestCase {
+public class ContextMenuTest {
 
     private static final String UUID = "uuid";
     private static final String LABEL = "label";
@@ -48,9 +45,8 @@ public class ContextMenuTest extends LightJavaCodeInsightFixtureTestCase {
     private ContextMenuService sut = new ContextMenuService();
     private PatchedDefaultMutableTreeNode datasource;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        super.setUp();
 
         root = new PatchedDefaultMutableTreeNode(RootTreeNodeModel.ROOT_NAME);
         dataSourceApi = new DataSourceV1(UUID, "local", DataSourceType.NEO4J_BOLT, new HashMap<>());

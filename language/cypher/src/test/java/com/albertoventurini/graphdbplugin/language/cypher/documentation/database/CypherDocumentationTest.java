@@ -6,7 +6,7 @@
  */
 package com.albertoventurini.graphdbplugin.language.cypher.documentation.database;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CypherDocumentationTest {
 

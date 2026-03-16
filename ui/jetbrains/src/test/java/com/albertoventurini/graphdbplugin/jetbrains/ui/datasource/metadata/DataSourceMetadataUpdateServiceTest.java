@@ -5,29 +5,25 @@ import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.metadat
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.metadata.DataSourcesComponentMetadata;
 import com.albertoventurini.graphdbplugin.jetbrains.component.datasource.state.impl.DataSourceV1;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.datasource.tree.RootTreeNodeModel;
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JUnit4.class)
-public class DataSourceMetadataUpdateServiceTest extends LightJavaCodeInsightFixtureTestCase {
+public class DataSourceMetadataUpdateServiceTest {
 
     private DataSourceMetadataUpdateService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        super.setUp();
 
         final var metadataComponent = mock(DataSourcesComponentMetadata.class);
         final var treeUpdaters = mock(DataSourceTreeUpdaters.class);

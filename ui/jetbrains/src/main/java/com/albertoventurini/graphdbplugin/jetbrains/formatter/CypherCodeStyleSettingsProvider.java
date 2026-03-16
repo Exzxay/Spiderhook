@@ -9,6 +9,7 @@ package com.albertoventurini.graphdbplugin.jetbrains.formatter;
 import com.intellij.application.options.CodeStyleAbstractConfigurable;
 import com.intellij.application.options.CodeStyleAbstractPanel;
 import com.intellij.application.options.TabbedLanguageCodeStylePanel;
+import com.intellij.lang.Language;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.psi.codeStyle.CodeStyleConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
@@ -24,6 +25,12 @@ public class CypherCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     @Override
     public CustomCodeStyleSettings createCustomSettings(CodeStyleSettings settings) {
         return new CypherCodeStyleSettings(settings);
+    }
+
+    @Nullable
+    @Override
+    public Language getLanguage() {
+        return CypherLanguage.INSTANCE;
     }
 
     @Nullable

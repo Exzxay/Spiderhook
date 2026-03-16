@@ -8,8 +8,8 @@ package com.albertoventurini.graphdbplugin.visualization.util;
 
 import com.albertoventurini.graphdbplugin.database.api.data.GraphNode;
 import com.albertoventurini.graphdbplugin.database.api.data.GraphPropertyContainer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -52,9 +52,9 @@ public class DisplayUtilTest {
     private Map<String, Object> properties;
     private List<String> types;
 
-    @Before
+    @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         properties = newLinkedHashMap();
         types = newArrayList();
