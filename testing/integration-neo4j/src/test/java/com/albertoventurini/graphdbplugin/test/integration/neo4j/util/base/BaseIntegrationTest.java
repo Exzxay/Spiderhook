@@ -117,14 +117,14 @@ public abstract class BaseIntegrationTest extends LightJavaCodeInsightFixtureTes
      * Some tests might even don't need running Neo4j server!
      */
     public final class DataSources {
-        private DataSourceApi neo4j52DataSource;
+        private DataSourceApi neo4j526DataSource;
         private DataSourceApi unavailableDataSource;
 
-        public DataSourceApi neo4j52() {
-            if (neo4j52DataSource == null) {
-                neo4j52DataSource = getNeo4jDataSource(NEO4J526, Neo4jContainerServers.VERSION_5_26.getInstance());
+        public DataSourceApi neo4j526() {
+            if (neo4j526DataSource == null) {
+                neo4j526DataSource = getNeo4jDataSource(NEO4J526, Neo4jContainerServers.VERSION_5_26.getInstance());
             }
-            return neo4j52DataSource;
+            return neo4j526DataSource;
         }
 
         public DataSourceApi unavailable() {

@@ -19,7 +19,7 @@ public class FunctionCompletionTest extends BaseCompletionTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        dataSource().neo4j52();
+        dataSource().neo4j526();
     }
 
     public void testContainsApocFunction() {

@@ -27,7 +27,7 @@ public class ArgumentHintTest extends BaseIntegrationTest {
         super.setUp();
         parameterInfoHandler = new CypherParameterInfoHandler();
 
-        dataSource().neo4j52();
+        dataSource().neo4j526();
     }
 
     public void testSpecialAll() {
