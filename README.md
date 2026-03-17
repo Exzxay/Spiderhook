@@ -20,7 +20,9 @@ section for more information on how to contribute to this project.
 This plugin is based on the
 [Graph Database Support](https://github.com/neueda/jetbrains-plugin-graph-database-support)
 plugin, originally developed by [Neueda Technologies](http://technologies.neueda.com/).
-The original plugin has not been updated for a long time and does not work with recent versions of IntelliJ and Neo4j.
+It was then forked and maintained by [Alberto Venturini](https://github.com/albertoventurini/graphdb-intellij-plugin),
+whose repository is now archived.
+This fork continues the work with support for IntelliJ 2025.3 and Neo4j 5.26 LTS.
 
 ## Installation
 
@@ -56,31 +58,36 @@ Simply add the following comment right before a Cypher String:
 
 ### Prerequisites
 
-The plugin depends on JDK17 and the latest release of IntelliJ. Please make sure
-you have those installed on your machine.
+- **JDK 21** (e.g. [Eclipse Temurin](https://adoptium.net/))
+- **IntelliJ IDEA 2025.3** or later
+- **Docker** — required for integration tests (Neo4j runs in a [Testcontainer](https://www.testcontainers.org/))
 
-Integration tests depend on Docker, because they run Neo4j server in a [Testcontainer](https://www.testcontainers.org/). Please ensure you have Docker up and running if you'd like to run integration tests.
-
-If you plan on making changes to a grammar or lexer files, you may find
+If you plan on making changes to grammar or lexer files, you may find
 it useful to install the [Grammar-Kit](https://github.com/JetBrains/Grammar-Kit)
 IntelliJ plugin. This is not required but nice to have.
 
 ### Build instructions
 
-The plugin can be built with the following Gradle command:
+On Linux/macOS:
 
 ```shell
 ./gradlew :graph-database-plugin:buildPlugin
 ```
 
-Before a release, the plugin should also be tested and verified with the following commands:
+On Windows (PowerShell):
+
+```powershell
+.\gradlew.bat :graph-database-plugin:buildPlugin
+```
+
+Before a release, the plugin should also be tested and verified:
 
 ```shell
 ./gradlew test
-./gradlew :graph-database-plugin:runPluginVerifier
+./gradlew :graph-database-plugin:verifyPlugin
 ```
 
-The plugin can also be manually tested on a sandboxed instance of IntelliJ with the command:
+The plugin can also be manually tested in a sandboxed instance of IntelliJ:
 
 ```shell
 ./gradlew :graph-database-plugin:runIde
@@ -88,17 +95,13 @@ The plugin can also be manually tested on a sandboxed instance of IntelliJ with 
 
 ## Getting help
 
-Please feel free to report any bugs by creating a
-[new issue on GitHub](https://github.com/albertoventurini/graphdb-intellij-plugin/issues/new).
+- For bugs, please [open an issue](https://github.com/mdelambilly/graphdb-intellij-plugin/issues/new/choose).
+- For questions or general discussion, use [GitHub Discussions](https://github.com/mdelambilly/graphdb-intellij-plugin/discussions).
 
 ## Getting involved
 
-Please feel free to contribute code by opening pull requests!
-
-Alternatively, if you find this plugin useful, please feel free to 
-<a href="https://ko-fi.com/albertoventurini">buy me a coffee</a>.
+Contributions are welcome — feel free to open a pull request!
 
 ## Contacts
 
-Any other comments or words of encouragement? Please get in touch
-via email at aventurini AT gmail DOT com.
+For any questions or feedback, please use [GitHub Discussions](https://github.com/mdelambilly/graphdb-intellij-plugin/discussions).
