@@ -19,6 +19,7 @@ import com.albertoventurini.graphdbplugin.visualization.services.LookAndFeelServ
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ActionCallback;
@@ -330,6 +331,7 @@ public class GraphConsoleView implements Disposable {
 
     @Override
     public void dispose() {
+        Disposer.dispose(parametersPanel);
     }
 
     public JPanel getGlobalParametersTab() {

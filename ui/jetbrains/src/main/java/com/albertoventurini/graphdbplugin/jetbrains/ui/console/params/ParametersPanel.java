@@ -56,7 +56,6 @@ public class ParametersPanel implements ParametersProvider, Disposable {
         this.messageBus = project.getMessageBus();
         this.service = project.getService(ParametersService.class);
         this.project = project;
-        Disposer.register(project, this);
         setupEditor(project);
         FileEditor selectedEditor = FileEditorManager.getInstance(project).getSelectedEditor();
         if (selectedEditor != null && selectedEditor.getFile() != null &&
