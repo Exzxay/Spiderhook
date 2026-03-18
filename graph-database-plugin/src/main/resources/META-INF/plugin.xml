@@ -3,17 +3,14 @@
     <name>Graph Database</name>
     <!-- Version is automatically replaced by the patchPluginXml task -->
     <version>9.9.9</version>
-    <vendor email="aventurini@gmail.com" url="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</vendor>
+    <vendor url="https://github.com/mdelambilly/graphdb-intellij-plugin">Michel de Lambilly</vendor>
 
     <description><![CDATA[
-        <p>
-            See this plugin <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">on Github</a>.
-        </p>
         <p>
             This plugin provides useful features for working with graph databases.
             It adds syntax highlighting and autocompletion for the
             <a href="https://opencypher.org/">Cypher</a> query language, and
-            it supports connecting to and querying remote graph databases.
+            it supports connecting to and querying local and remote graph databases.
         </p>
         <p>
             <b>Features:</b>
@@ -27,7 +24,7 @@
         <p>
             <b>Supported databases:</b>
             <ul>
-                <li>Neo4j 3.4+ (Bolt), including AuraDB</li>
+                <li>Neo4j 5.x (Bolt), including AuraDB</li>
             </ul>
         </p>
 
@@ -56,21 +53,18 @@
         </ul>
         </p>
         <p>
-            This plugin is based on the 'Graph Database Support plugin'
-            developed by Neueda Technologies, Ltd. The original plugin has not been updated
-            in a long time.
-        </p>
-        <p>
-            This plugin has been updated to run with modern versions of IntelliJ and related IDEs.
-            Just like the original plugin, it supports Neo4j and Cypher data sources; however, support for
-            Gremlin data sources (such as Cosmos DB) has been dropped.
+            This plugin is based on the
+            <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
+            plugin originally developed by Neueda Technologies, Ltd., later maintained by
+            <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</a>.
+            This fork continues the work with support for IntelliJ 2025.3 and Neo4j 5.26 LTS.
         </p>
         ]]></description>
 
     <!-- Change notes are automatically replaced by the patchPluginXml task -->
     <change-notes><![CDATA[
         See
-        <a href="https://github.com/albertoventurini/graphdb-intellij-plugin/releases">https://github.com/albertoventurini/graphdb-intellij-plugin/releases</a>
+        <a href="https://github.com/mdelambilly/graphdb-intellij-plugin/releases">https://github.com/mdelambilly/graphdb-intellij-plugin/releases</a>
         ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
