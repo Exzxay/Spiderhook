@@ -22,6 +22,7 @@ public final class GraphConstants {
             public static final String GRAPH = "Graph";
             public static final String TABLE = "Table";
             public static final String PARAMETERS = "Parameters";
+            public static final String RAW = "Raw";
         }
     }
 

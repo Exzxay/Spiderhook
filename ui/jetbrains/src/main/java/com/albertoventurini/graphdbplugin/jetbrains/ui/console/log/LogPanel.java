@@ -80,14 +80,16 @@ public class LogPanel implements Disposable {
                 if (result.getRows().isEmpty()) {
                     info("No results.");
                 } else if (result.getNodes().isEmpty()) {
-                    info(String.format("Got %s rows. View results: %s",
-                            result.getRows().size(),
-                            GoToTabFilter.TABLE_TAB_LINK));
-                } else {
                     info(String.format("Got %s rows. View results: %s, %s",
                             result.getRows().size(),
+                            GoToTabFilter.TABLE_TAB_LINK,
+                            GoToTabFilter.RAW_TAB_LINK));
+                } else {
+                    info(String.format("Got %s rows. View results: %s, %s, %s",
+                            result.getRows().size(),
                             GoToTabFilter.GRAPH_TAB_LINK,
-                            GoToTabFilter.TABLE_TAB_LINK));
+                            GoToTabFilter.TABLE_TAB_LINK,
+                            GoToTabFilter.RAW_TAB_LINK));
                 }
                 newLine();
             }

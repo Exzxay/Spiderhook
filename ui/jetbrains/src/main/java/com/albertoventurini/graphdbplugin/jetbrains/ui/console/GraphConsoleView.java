@@ -13,6 +13,7 @@ import com.albertoventurini.graphdbplugin.jetbrains.ui.console.graph.GraphPanel;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.console.log.LogPanel;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.console.params.ParametersPanel;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.console.plan.QueryPlanPanel;
+import com.albertoventurini.graphdbplugin.jetbrains.ui.console.raw.RawJsonPanel;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.console.status.ExecutionStatusBarWidget;
 import com.albertoventurini.graphdbplugin.jetbrains.ui.console.table.TablePanel;
 import com.albertoventurini.graphdbplugin.visualization.services.LookAndFeelService;
@@ -79,6 +80,7 @@ public class GraphConsoleView implements Disposable {
     private JPanel logTab;
     private JPanel graphTab;
     private JPanel parametersTab;
+    private JPanel rawTab;
     private JBTabbedPane defaultTabContainer;
     private JBSplitter graphSplitter;
     private JPanel globalParametersTab;
@@ -91,6 +93,7 @@ public class GraphConsoleView implements Disposable {
     private GraphPanel graphPanel;
     private LogPanel logPanel;
     private ParametersPanel parametersPanel;
+    private RawJsonPanel rawJsonPanel;
 
     private static final DateTimeFormatter QUERY_PLAN_TIME_FORMAT = new DateTimeFormatterBuilder()
             .appendValue(HOUR_OF_DAY, 2)
@@ -108,6 +111,7 @@ public class GraphConsoleView implements Disposable {
         graphPanel = new GraphPanel();
         logPanel = new LogPanel();
         parametersPanel = new ParametersPanel();
+        rawJsonPanel = new RawJsonPanel();
         lookAndFeelService = ApplicationManager.getApplication().getService(LookAndFeelService.class);
 
         setupUI();
@@ -116,6 +120,9 @@ public class GraphConsoleView implements Disposable {
     private void setupUI() {
         // --- Log tab ---
         logTab = new JPanel(new BorderLayout());
+
+        // --- Raw JSON tab ---
+        rawTab = new JPanel(new BorderLayout());
 
         // --- Graph tab ---
         graphCanvas = new JPanel(new GridLayout(0, 1));
@@ -155,6 +162,7 @@ public class GraphConsoleView implements Disposable {
         defaultTabContainer.add(Tabs.GRAPH, graphTab);
         defaultTabContainer.add(Tabs.TABLE, tableScrollPane);
         defaultTabContainer.add(Tabs.PARAMETERS, parametersTab);
+        defaultTabContainer.add(Tabs.RAW, rawTab);
 
         // --- consoleTabs (JBTabsImpl) via JBTabsPaneImpl ---
         consoleTabsPane = new JBTabsPaneImpl(null, SwingConstants.TOP, this);
@@ -206,6 +214,8 @@ public class GraphConsoleView implements Disposable {
                 .setText(Tabs.GRAPH));
             consoleTabs.addTab(new TabInfo(tableScrollPane)
                 .setText(Tabs.TABLE));
+            consoleTabs.addTab(new TabInfo(rawTab)
+                .setText(Tabs.RAW));
             consoleTabs.addTab(new TabInfo(parametersTab)
                 .setText(Tabs.PARAMETERS));
             consoleTabs.setSelectionChangeHandler((info, requestFocus, doChangeSelection) -> {
@@ -259,6 +269,7 @@ public class GraphConsoleView implements Disposable {
         logTab.setBorder(JBUI.Borders.empty());
         graphTab.setBorder(JBUI.Borders.empty());
         parametersTab.setBorder(JBUI.Borders.empty());
+        rawTab.setBorder(JBUI.Borders.empty());
     }
 
     private void initializeUiComponents(@NotNull final Project project) {
@@ -266,6 +277,7 @@ public class GraphConsoleView implements Disposable {
         tablePanel.initialize(this, project);
         logPanel.initialize(this, project);
         parametersPanel.initialize(this, project);
+        rawJsonPanel.initialize(this, project);
     }
 
 //    private void initializeWidgets(Project project) {
@@ -332,6 +344,7 @@ public class GraphConsoleView implements Disposable {
     @Override
     public void dispose() {
         Disposer.dispose(parametersPanel);
+        Disposer.dispose(rawJsonPanel);
     }
 
     public JPanel getGlobalParametersTab() {
@@ -340,5 +353,9 @@ public class GraphConsoleView implements Disposable {
 
     public JPanel getFileSpecificParametersTab() {
         return fileSpecificParametersTab;
+    }
+
+    public JPanel getRawTab() {
+        return rawTab;
     }
 }
