@@ -40,6 +40,7 @@ graph-database-plugin\   → Main plugin module, assembles everything, produces 
 - When fixing a deprecated API, always cite the replacement API with its full import
 - Do not modify the plugin's business logic unless explicitly asked
 - Shell commands must be compatible with **PowerShell 7.x on Windows**
+- **NEVER commit without an explicit test approval from the user.** For any feature or fix involving UI, editor behavior, or runtime plugin loading: propose launching `runIde`, wait for the user to confirm the behavior works, then commit.
 
 ## Project properties (gradle.properties)
 - `platformType = IC`

@@ -1,0 +1,638 @@
+/**
+ * Copied and adapted from plugin
+ * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
+ * by Neueda Technologies, Ltd.
+ * Modified by Alberto Venturini, 2022
+ */
+{
+  parserClass="com.github.mdelambilly.graphdbplugin.language.cypher.CypherParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  elementTypeHolderClass="com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherTypes"
+  elementTypeClass="com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherElementType"
+  tokenTypeClass="com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherTokenType"
+
+  psiImplUtilClass="com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherPsiImplUtil"
+  psiClassPrefix="Cypher"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.mdelambilly.graphdbplugin.language.cypher.psi"
+  psiImplPackage="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl"
+
+  tokens=[
+    // base
+    semicolon=";"
+    parenthesis_open="("
+    parenthesis_close=")"
+    bracket_CurlyOpen="{"
+    bracket_CurlyClose="}"
+    bracket_SquareOpen="["
+    bracket_SquareClose="]"
+    dollar="$"
+    op_colon=":"
+    op_dot="."
+    op_equal="="
+    op_lessThen="<"
+    op_greatherThen=">"
+    op_plus="+"
+    op_minus="-"
+    op_mul="*"
+    op_bactick="`"
+    op_comma=","
+    op_questionSign="?"
+    op_pipe="|"
+    op_range=".."
+    op_plusEquals="+="
+    op_invalidNotEquals="<>"
+    op_notEquals="!="
+    op_lessThanEquals="<="
+    op_greaterThanEquals=">="
+    op_divide="/"
+    op_modulo="%"
+    op_pow="^"
+    op_regexMatch="=~"
+  ]
+}
+
+cypher ::= StatementItem *
+
+StatementItem ::= !<<eof>> Statement ';'? {pin=1 recoverWhile=statement_recover}
+private statement_recover::= !(';'
+                        | K_USING
+                        | K_UNION
+                        | K_LOAD
+                        | K_START
+                        | K_MATCH
+                        | K_UNWIND
+                        | K_MERGE
+                        | K_CREATE
+                        | K_CREATE_INDEX
+                        | K_CREATE_RANGE_INDEX
+                        | K_CREATE_LOOKUP_INDEX
+                        | K_CREATE_POINT_INDEX
+                        | K_CREATE_TEXT_INDEX
+                        | K_DROP
+                        | K_SET
+                        | K_DELETE
+                        | K_REMOVE
+                        | K_FOREACH
+                        | K_WITH
+                        | K_RETURN
+                        | K_BEGIN
+                        | K_COMMIT
+                        | K_CYPHER
+                        | K_PROFILE
+                        | K_EXPLAIN
+                        | K_CALL
+                        | K_OPTIONAL
+                        | K_DETACH
+                        | "}")
+
+/*************************
+ * Statement
+ */
+Statement ::= (K_BEGIN) | (K_COMMIT) | (QueryOptions? (Command | Query))
+
+/*************************
+ * Statement options
+ */
+QueryOptions ::= AnyCypherOption* ;
+AnyCypherOption ::= CypherOption | Explain | Profile;
+CypherOption ::= K_CYPHER VersionNumber? ConfigurationOption*
+VersionNumber ::= DoubleLiteral
+Explain ::= K_EXPLAIN
+Profile ::= K_PROFILE
+ConfigurationOption ::= SymbolicNameString '=' SymbolicNameString
+
+/*************************
+ * Command
+ */
+Command ::= CreateIndex
+          | DropIndex
+          | CreateUniqueConstraint
+          | DropUniqueConstraint
+          | CreateNodePropertyExistenceConstraint
+          | DropNodePropertyExistenceConstraint
+          | CreateRelationshipPropertyExistenceConstraint
+          | DropRelationshipPropertyExistenceConstraint
+
+CreateUniqueConstraint ::= K_CREATE UniqueConstraintSyntax
+DropUniqueConstraint ::= K_DROP UniqueConstraintSyntax
+UniqueConstraintSyntax ::= K_CONSTRAINT K_ON "(" Variable NodeLabel ")" K_ASSERT PropertyExpression K_IS K_UNIQUE
+
+CreateNodePropertyExistenceConstraint ::= K_CREATE NodePropertyExistenceConstraintSyntax
+DropNodePropertyExistenceConstraint ::= K_DROP NodePropertyExistenceConstraintSyntax
+NodePropertyExistenceConstraintSyntax ::= K_CONSTRAINT K_ON "(" Variable NodeLabel ")" K_ASSERT K_EXISTS "(" PropertyExpression ")"
+
+CreateRelationshipPropertyExistenceConstraint ::= K_CREATE RelationshipPropertyExistenceConstraintSyntax
+DropRelationshipPropertyExistenceConstraint ::= K_DROP RelationshipPropertyExistenceConstraintSyntax
+RelationshipPropertyExistenceConstraintSyntax ::= K_CONSTRAINT K_ON RelationshipPatternSyntax K_ASSERT K_EXISTS "(" PropertyExpression ")"
+RelationshipPatternSyntax ::= ("(" ")" "-" "[" Variable RelType "]" "-" "(" ")")
+      | ("(" ")" "-" "[" Variable RelType "]" "-" ">" "(" ")")
+      | ("(" ")" "<" "-" "[" Variable RelType "]" "-" "(" ")")
+
+/*************************
+ * Indexes
+ */
+
+CreateIndex ::= CreateRangeIndex
+              | CreateTextIndex
+              | CreatePointIndex
+              | CreateLookupIndex
+
+CreateRangeIndex ::= CreateNamedRangeIndex | CreateUnnamedRangeIndex
+private CreateNamedRangeIndex ::= (K_CREATE_INDEX | K_CREATE_RANGE_INDEX) IndexName CreateIndexBody
+private CreateUnnamedRangeIndex ::= (K_CREATE_INDEX | K_CREATE_RANGE_INDEX) CreateIndexBody
+
+CreateTextIndex ::= CreateNamedTextIndex | CreateUnnamedTextIndex
+private CreateNamedTextIndex ::= K_CREATE_TEXT_INDEX IndexName CreateIndexBody
+private CreateUnnamedTextIndex ::= K_CREATE_TEXT_INDEX CreateIndexBody
+
+CreatePointIndex ::= CreateNamedPointIndex | CreateUnnamedPointIndex
+private CreateNamedPointIndex ::= K_CREATE_POINT_INDEX IndexName CreateIndexBody
+private CreateUnnamedPointIndex ::= K_CREATE_POINT_INDEX CreateIndexBody
+
+IndexName ::= SymbolicNameString
+
+private CreateIndexBody ::= K_IF_NOT_EXISTS? CreateIndexForPart CreateIndexOnPropertiesPart CreateIndexOptionsPart?
+
+private CreateIndexForPart ::= K_FOR (CreateIndexForNodePart | CreateIndexForRelationshipPart)
+CreateIndexForNodePart ::= "(" Variable NodeLabel ")"
+CreateIndexForRelationshipPart ::= "(" ")" "-" "[" Variable RelType "]" "-" "(" ")"
+
+CreateIndexOnPropertiesPart ::= K_ON "(" Variable "." PropertyKeyName ("," Variable "." PropertyKeyName)* ")"
+
+// CREATE LOOKUP INDEX is a little different, so it is handled separately
+CreateLookupIndex ::= CreateNamedLookupIndex | CreateUnnamedLookupIndex
+private CreateNamedLookupIndex ::= K_CREATE_LOOKUP_INDEX IndexName CreateLookupIndexBody
+private CreateUnnamedLookupIndex ::= K_CREATE_LOOKUP_INDEX CreateLookupIndexBody
+
+private CreateLookupIndexBody ::= K_IF_NOT_EXISTS? (CreateLookupIndexForNodePart | CreateLookupIndexForRelationshipPart) CreateIndexOptionsPart?
+CreateLookupIndexForNodePart ::= K_FOR "(" Variable ")" K_ON_EACH_LABELS "(" Variable ")"
+CreateLookupIndexForRelationshipPart ::= K_FOR "(" ")" "-" "[" Variable "]" "-" "(" ")" (K_ON_EACH_TYPE|K_ON_TYPE) "(" Variable ")"
+
+CreateIndexOptionsPart ::= K_OPTIONS "{" LiteralEntry? ("," LiteralEntry)* "}"
+
+DropIndex ::= K_DROP K_INDEX IndexName K_IF_EXISTS?
+
+/*************************
+ * Query
+ */
+Query ::= StandaloneCall | RegularQuery
+
+//-- RegularQuery
+RegularQuery ::= SingleQuery Union*
+Union ::= K_UNION K_ALL? SingleQuery
+SingleQuery ::= MultiPartQuery | SinglePartQuery
+
+SinglePartQuery ::= ((ReadingClause* UpdatingClause+ Return?) | ReadingWithReturn)
+
+ReadingWithReturn ::= ReadingClause* Return {pin=1 recoverWhile=statement_recover}
+
+MultiPartQuery ::= ((ReadingClause* UpdatingClause* With)+ SinglePartQuery)
+
+UpdatingClause ::= Create
+               | Merge
+               | Foreach
+               | Delete
+               | SetClause
+               | Remove
+
+ReadingClause ::= LoadCSV
+              | Start
+              | Match
+              | Unwind
+              | CallSubQuery
+              | InQueryCall
+
+/*************************
+ * Clauses
+ */
+//-- Load csv
+LoadCSV ::= K_LOAD K_CSV (K_WITH K_HEADERS)? K_FROM Expression K_AS Variable (K_FIELDTERMINATOR StringLiteral)?
+
+//-- Start
+Start ::= K_START (StartPoint ("," StartPoint)*)? Where?
+StartPoint ::= Variable "=" Lookup
+Lookup ::= NodeLookup | RelationshipLookup
+
+NodeLookup ::= K_NODE (IdentifiedIndexLookup | IndexQuery | IdLookup)
+RelationshipLookup ::= (K_RELATIONSHIP | K_REL) (IdentifiedIndexLookup | IndexQuery | IdLookup)
+
+IdentifiedIndexLookup ::= ":" SymbolicNameString "(" SymbolicNameString "=" (StringLiteral | Parameter) ")"
+IndexQuery ::= ":" SymbolicNameString "(" (StringLiteral | Parameter) ")"
+IdLookup ::= "(" (LiteralIds | Parameter | "*") ")"
+LiteralIds ::= IntegerLiteral ("," IntegerLiteral)*
+
+//-- Match
+Match ::= K_OPTIONAL? K_MATCH PatternWithWhereClause
+PatternWithWhereClause ::= Pattern Hint* Where?
+Hint ::= K_USING ((K_INDEX Variable NodeLabel "(" PropertyKeyName ")")
+       | (K_JOIN K_ON Variable ("," Variable)*)
+       | (K_SCAN Variable NodeLabel))
+
+//-- Merge
+Merge ::= K_MERGE PatternPart MergeAction*
+MergeAction ::= K_ON (K_MATCH | K_CREATE) SetClause
+
+//-- SetClause
+SetClause ::= K_SET SetItem ("," SetItem)*
+SetItem ::= (PropertyExpression "=" Expression)
+          | (Variable "=" Expression)
+          | (Variable "+=" Expression)
+          | (Variable NodeLabels)
+
+//-- Remove
+Remove ::= K_REMOVE RemoveItem ("," RemoveItem)*
+RemoveItem ::= (Variable NodeLabels) | PropertyExpression
+
+//-- Return
+With ::= K_WITH K_DISTINCT? ReturnBody Where?
+Return ::= K_RETURN K_DISTINCT? ReturnBody
+ReturnBody ::= ReturnItems Order? Skip? Limit?
+ReturnItems ::= ("*" | ReturnItem) ("," ReturnItem)*
+ReturnItem ::= (Expression K_AS Variable) | (Expression)
+Order ::= K_ORDER K_BY SortItem ("," SortItem)*
+SortItem ::= Expression (K_DESCENDING | K_DESC | K_ASCENDING | K_ASC)?
+Skip ::= K_SKIP Expression
+Limit ::= K_LIMIT Expression
+
+//-- Call subquery
+CallSubQuery ::= K_CALL "{" Query "}" (K_IN_TRANSACTIONS (K_OF IntegerLiteral K_ROWS)?)? {pin=2}
+
+//-- Call procedure
+Call ::= K_CALL ProcedureInvocation ProcedureResults?
+InQueryCall ::= Call Where?
+StandaloneCall ::= Call (Where? Return)?
+ProcedureInvocation ::= ProcedureInvocationBody ProcedureArguments {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherProcedureInvocationImplMixin"
+}
+ProcedureInvocationBody ::= Namespace ProcedureName
+ProcedureArguments ::= "(" Expression? ("," Expression)* ")" {
+   implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherArgumentList"
+}
+ProcedureResults ::= K_YIELD ProcedureResult ("," ProcedureResult)*
+ProcedureResult ::= AliasedProcedureResult | SimpleProcedureResult
+AliasedProcedureResult ::= ProcedureOutput K_AS Variable
+SimpleProcedureResult ::= Variable
+ProcedureOutput ::= SymbolicNameString
+
+//-- Other
+Create ::= K_CREATE K_UNIQUE? Pattern
+Delete ::= K_DETACH? K_DELETE Expression ("," Expression)*
+Unwind ::= K_UNWIND Expression K_AS Variable
+Foreach ::= K_FOREACH "(" Variable K_IN Expression "|" UpdatingClause+ ")"
+Where ::= K_WHERE Expression
+
+/*************************
+ * Patterns
+ */
+Pattern ::= PatternPart ("," PatternPart)*
+PatternPart ::= (Variable "=")? AnonymousPatternPart
+AnonymousPatternPart ::= ShortestPathPattern | PatternElement
+ShortestPathPattern ::= ShortestPathFunctionInvocation | AllShortestPathsFunctionInvocation {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherTypePropagator"
+}
+ShortestPathFunctionInvocation ::= (K_SHORTESTPATH "(" PatternElement ")") {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherPathYielding"
+}
+AllShortestPathsFunctionInvocation ::= (K_ALLSHORTESTPATHS "(" PatternElement ")") {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherListYielding"
+}
+PatternElement ::= ("(" PatternElement ")") | (NodePattern PatternElementChain*)
+PatternElementChain ::= RelationshipPattern NodePattern {pin=1}
+
+RelationshipPattern ::= LeftArrowHead? Dash RelationshipDetail? Dash RightArrowHead? {pin=2}
+
+RelationshipDetail ::= "[" Variable? "?"? RelationshipTypes? MaybeVariableLength? Properties? Where? "]" {pin=1}
+RelationshipTypes ::= ":" RelTypeName ("|" ":"? RelTypeName)* {pin=1}
+MaybeVariableLength ::= ("*" RangeLiteral?)
+
+NodePattern ::= "(" Variable? NodeLabels? Properties? Where? ")" {pin=1}
+
+RelationshipsPattern ::= NodePattern PatternElementChain+ {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherPathYielding"
+}
+Properties ::= MapLiteral | Parameter
+
+/*************************
+ * Expression
+ */
+Expression ::= Expression12 {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherTypePropagator"
+}
+private Expression12 ::= Expression11 (K_OR Expression11)*
+private Expression11 ::= Expression10 (K_XOR Expression10)*
+private Expression10 ::= Expression9 (K_AND Expression9)*
+private Expression9 ::= (K_NOT Expression9) | Expression8
+private Expression8 ::= Expression7 PartialComparisonExpression*
+private PartialComparisonExpression ::= ("=" Expression7)
+                                      | ("<>" Expression7)
+                                      | ("!=" Expression7)
+                                      | ("<" Expression7)
+                                      | (">" Expression7)
+                                      | ("<=" Expression7)
+                                      | (">=" Expression7)
+private Expression7 ::= Expression6 (("-" Expression6) | ("+" Expression6))*
+private Expression6 ::= Expression5 (("*" Expression5) | ("/" Expression5) | ("%" Expression5))*
+private Expression5 ::= Expression4 ("^" Expression4)*
+private Expression4 ::= Expression3 | ("-" Expression4) | ("+" Expression4)
+private Expression3 ::= Expression2 (
+    ("[" Expression "]")
+  | ("[" Expression? ".." Expression? "]")
+  | ("=~" Expression2)
+  | (K_IN Expression2)
+  | (K_STARTS K_WITH  Expression2)
+  | (K_ENDS K_WITH  Expression2)
+  | (K_CONTAINS  Expression2)
+  | (K_IS K_NULL)
+  | (K_IS K_NOT K_NULL)
+)*
+private Expression2 ::= Expression1 (PropertyLookup | NodeLabels)*
+private Expression1 ::= UnaryOperator
+              | NumberLiteral
+              | StringLiteral
+              | Parameter
+              | BooleanLiteral
+              | NullLiteral
+              | CaseExpression
+              | MapLiteral
+              | MapProjection
+              | CountStar
+              | ListComprehension
+              | PatternComprehension
+              | Array
+
+              | FilterFunctionInvocation
+              | ExtractFunctionInvocation
+              | ReduceFunctionInvocation
+              | AllFunctionInvocation
+              | AnyFunctionInvocation
+              | NoneFunctionInvocation
+              | SingleFunctionInvocation
+              | ExistsFunctionInvocation
+
+              | ShortestPathPattern
+              | RelationshipsPattern
+              | ParenthesizedExpression
+              | FunctionInvocation
+              | ExistentialSubQuery
+              | CountSubQuery
+              | Variable
+
+
+UnaryOperator ::= ("-" | "+") NumberLiteral {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherTypePropagator"
+}
+
+Array ::= ("[" Expression? ("," Expression)* "]") {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherListYielding"
+}
+PropertyLookup ::= "." PropertyKeyName
+ListComprehension ::= "[" FilterExpression ("|"  Expression)? "]" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherListYielding"
+}
+FilterExpression ::= IdInColl Where?
+IdInColl ::= Variable K_IN Expression
+ParenthesizedExpression ::= "(" Expression ")" {
+    pin=1
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherParenthesized"
+}
+FunctionInvocation ::= FunctionInvocationBody (("(" "*" ")") | FunctionArguments) {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherFunctionInvocationImplMixin"
+}
+FunctionArguments ::= "(" K_DISTINCT? Expression? ("," Expression)* ")" {
+   implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherArgumentList"
+}
+FunctionInvocationBody ::= Namespace FunctionName
+
+// Note: this deviates from the grammar defined at https://github.com/opencypher/openCypher
+// However, this conforms to the description of existential subqueries in the Neo4j docs:
+// https://neo4j.com/docs/cypher-manual/current/syntax/expressions/#existential-subqueries
+ExistentialSubQuery ::= K_EXISTS "{" K_MATCH? PatternWithWhereClause "}"
+
+// Note: this deviates from the grammar defined at https://github.com/opencypher/openCypher
+// However, this conforms to the description of count subqueries in the Neo4j docs:
+// https://neo4j.com/docs/cypher-manual/current/syntax/expressions/#count-subqueries
+CountSubQuery ::= K_COUNT "{" K_MATCH? PatternWithWhereClause "}"
+
+CaseExpression ::= K_CASE ((CaseAlternatives+) | (Expression CaseAlternatives+))
+                   (K_ELSE Expression)?
+                   K_END {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherAnyYielding"
+}
+CaseAlternatives ::= K_WHEN Expression K_THEN Expression
+PropertyExpression ::= Expression1 (PropertyLookup)+
+
+FilterFunctionInvocation ::= K_FILTER "(" FilterExpression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherFilterFunctionInvocationImplMixin"
+}
+ExtractFunctionInvocation ::= K_EXTRACT "(" FilterExpression ("|" Expression)? ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherExtractFunctionInvocationImplMixin"
+}
+ReduceFunctionInvocation ::= K_REDUCE "(" Variable "=" Expression "," IdInColl "|" Expression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherReduceFunctionInvocationImplMixin"
+}
+AllFunctionInvocation ::= K_ALL "(" FilterExpression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherAllFunctionInvocationImplMixin"
+}
+AnyFunctionInvocation ::= K_ANY "(" FilterExpression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherAnyFunctionInvocationImplMixin"
+}
+NoneFunctionInvocation ::= K_NONE "(" FilterExpression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherNoneFunctionInvocationImplMixin"
+}
+SingleFunctionInvocation ::= K_SINGLE "(" FilterExpression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherSingleFunctionInvocationImplMixin"
+}
+ExistsFunctionInvocation ::= K_EXISTS "(" Expression ")" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherInvocation"
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherExistsFunctionInvocationImplMixin"
+}
+
+PatternComprehension ::= "[" RelationshipsPattern Where? "|" Expression "]" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherListYielding"
+}
+
+/*************************
+ * Literals
+ */
+MapProjection ::= Variable "{" MapProjectionVariants? ("," MapProjectionVariants)* "}" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherMapYielding"
+}
+MapProjectionVariants ::= (LiteralEntry | PropertySelector | VariableSelector | AllPropertiesSelector)
+LiteralEntry ::= PropertyKeyName ":" Expression
+PropertySelector ::= "." Variable
+VariableSelector ::= Variable
+AllPropertiesSelector ::= "." "*"
+
+/*************************
+ * Literals
+ */
+Variable ::= SymbolicNameString {
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherVariableElementImplMixin"
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherVariableElement"
+}
+FunctionName ::= UnescapedSymbolicNameString | EscapedSymbolicNameString | K_COUNT
+ProcedureName ::= SymbolicNameString
+CountStar ::= (K_COUNT "(" "*" ")") {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherIntegerYielding"
+}
+Parameter ::= NewParameter | OldParameter {
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherParameterImplMixin"
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherAnyYielding"
+}
+OldParameter ::= "{" (SymbolicNameString | UnsignedInteger) "}"
+NewParameter ::= "$" (SymbolicNameString | UnsignedInteger)
+NodeLabel ::= ":" LabelName
+StringLiteral ::= l_string {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherStringYielding"
+}
+BooleanLiteral ::= K_TRUE | K_FALSE {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherBooleanYielding"
+}
+NullLiteral ::= K_NULL {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherNullYielding"
+}
+LabelName ::= SymbolicNameString {
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherLabelNameImplMixin"
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherNamedElement"
+}
+RelType ::= ":" RelTypeName
+RelTypeName ::= SymbolicNameString {
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherRelTypeNameImplMixin"
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherNamedElement"
+}
+PropertyKeyName ::= SymbolicNameString {
+    mixin="com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherPropertyKeyNameImplMixin"
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherNamedElement"
+}
+PropertyKeyNames ::= PropertyKeyName ("," PropertyKeyName)*
+
+RangeLiteral ::= (IntegerLiteral? ".." IntegerLiteral?) | (IntegerLiteral)
+MapLiteral ::= "{" (PropertyKeyName ":" Expression)? ("," PropertyKeyName ":" Expression)* "}" {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherMapYielding"
+}
+NodeLabels ::= NodeLabel+
+
+NumberLiteral ::= DoubleLiteral | IntegerLiteral {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherTypePropagator"
+}
+
+DoubleLiteral ::= UnsignedDouble {// todo: make real double here
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherFloatYielding"
+}
+
+IntegerLiteral ::= UnsignedInteger {
+    implements="com.github.mdelambilly.graphdbplugin.language.cypher.references.types.CypherIntegerYielding"
+}
+
+/*************************
+ * Base
+ */
+Namespace ::= (SymbolicNameString ".")*
+SymbolicNameString ::= UnescapedSymbolicNameString
+    | EscapedSymbolicNameString
+    | ReservedWord
+
+ReservedWord ::= K_MATCH
+                | K_YIELD
+                | K_XOR
+                | K_WITH
+                | K_WHERE
+                | K_WHEN
+                | K_USING
+                | K_UNWIND
+                | K_UNIQUE
+                | K_UNION
+                | K_TRUE
+                | K_THEN
+                | K_STARTS
+                | K_START
+                | K_SKIP
+                | K_SINGLE
+                | K_SHORTESTPATH
+                | K_SET
+                | K_SCAN
+                | K_SCALAR
+                | K_RETURN
+                | K_REQUIRE
+                | K_REMOVE
+                | K_RELATIONSHIP
+                | K_REL
+                | K_REDUCE
+                | K_PROFILE
+                | K_ORDER
+                | K_OR
+                | K_OPTIONAL
+                | K_ON
+                | K_OF
+                | K_NULL
+                | K_NOT
+                | K_NONE
+                | K_NODE
+                | K_MERGE
+                | K_MANDATORY
+                | K_LOAD
+                | K_LIMIT
+                | K_JOIN
+                | K_IS
+                | K_INDEX
+                | K_IN
+                | K_HEADERS
+                | K_FROM
+                | K_FOREACH
+                | K_FOR
+                | K_FILTER
+                | K_FIELDTERMINATOR
+                | K_FALSE
+                | K_EXTRACT
+                | K_EXPLAIN
+                | K_EXISTS
+                | K_ENDS
+                | K_END
+                | K_ELSE
+                | K_DROP
+                | K_DO
+                | K_DISTINCT
+                | K_DETACH
+                | K_DESCENDING
+                | K_DESC
+                | K_DELETE
+                | K_CYPHER
+                | K_CSV
+                | K_CREATE
+                | K_COUNT
+                | K_CONTAINS
+                | K_CONSTRAINT
+                | K_COMMIT
+                | K_CASE
+                | K_CALL
+                | K_BY
+                | K_BEGIN
+                | K_ASSERT
+                | K_ASCENDING
+                | K_ASC
+                | K_AS
+                | K_ANY
+                | K_AND
+                | K_ALLSHORTESTPATHS
+                | K_ALL
+                | K_ADD
+
+EscapedSymbolicNameString ::= l_identifier_text
+UnescapedSymbolicNameString ::= l_identifier
+Dash ::= "-" // todo: migrate all variants
+LeftArrowHead ::= "<" // todo: migrate all variants
+RightArrowHead ::= ">" // todo: migrate all variants
+UnsignedDouble ::= l_decimal
+UnsignedInteger ::= l_integer | l_hex_integer | l_octal_integer

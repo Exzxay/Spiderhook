@@ -1,0 +1,25 @@
+/**
+ * Copied and adapted from plugin
+ * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
+ * by Neueda Technologies, Ltd.
+ * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
+ */
+package com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.event;
+
+import com.github.mdelambilly.graphdbplugin.database.api.data.GraphDatabaseVersion;
+import com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.state.DataSourceApi;
+import com.intellij.util.messages.Topic;
+
+public interface VersionFetchingProcessEvent {
+
+    Topic<VersionFetchingProcessEvent> VERSION_FETCHING_PROCESS_TOPIC =
+            Topic.create("GraphDatabaseConsole.VersionFetchingProcessTopic", VersionFetchingProcessEvent.class);
+
+    void processStarted(DataSourceApi dataSource);
+
+    void versionReceived(GraphDatabaseVersion version);
+
+
+    void handleError(Exception exception);
+}

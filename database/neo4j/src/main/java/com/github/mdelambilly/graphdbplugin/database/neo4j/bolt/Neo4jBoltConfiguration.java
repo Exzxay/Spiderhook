@@ -1,0 +1,54 @@
+/**
+ * Copied and adapted from plugin
+ * <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
+ * by Neueda Technologies, Ltd.
+ * Modified by Alberto Venturini, 2022
+ * Modified by Michel de Lambilly, 2026
+ */
+package com.github.mdelambilly.graphdbplugin.database.neo4j.bolt;
+
+import java.util.Map;
+
+// TODO: this needs to be a record
+public class Neo4jBoltConfiguration {
+
+    public static final String PROTOCOL = "protocol";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String AUTH_TYPE = "authType";
+    public static final String USER = "user";
+    public static final String PASSWORD = "password";
+    public static final String DATABASE = "database";
+
+    private final Map<String, String> configuration;
+
+    public Neo4jBoltConfiguration(Map<String, String> configuration) {
+        this.configuration = configuration;
+    }
+
+    public String getHost() {
+        return configuration.get(HOST);
+    }
+
+    public Integer getPort() {
+        return Integer.valueOf(configuration.getOrDefault(PORT, "7687"));
+    }
+
+    public String getDatabase() { return configuration.get(DATABASE); }
+    public String getUser() {
+        return configuration.get(USER);
+    }
+
+    public String getPassword() {
+        return configuration.get(PASSWORD);
+    }
+
+    public String getAuthType() {
+        return configuration.get(AUTH_TYPE);
+    }
+
+    public String getProtocol() {
+        return configuration.get(PROTOCOL);
+    }
+
+}

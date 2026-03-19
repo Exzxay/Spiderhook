@@ -27,17 +27,17 @@ dependencies {
 }
 
 tasks.register("generateCypherLexer", GenerateLexerTask.class) {
-    sourceFile.set(layout.projectDirectory.file("src/main/java/com/albertoventurini/graphdbplugin/language/cypher/lexer/CypherLexer.flex"))
-    targetOutputDir.set(layout.projectDirectory.dir("src/main/gen/com/albertoventurini/graphdbplugin/language/cypher/lexer/"))
+    sourceFile.set(layout.projectDirectory.file("src/main/java/com/github/mdelambilly/graphdbplugin/language/cypher/lexer/CypherLexer.flex"))
+    targetOutputDir.set(layout.projectDirectory.dir("src/main/gen/com/github/mdelambilly/graphdbplugin/language/cypher/lexer/"))
     targetClass.set("CypherLexer")
     purgeOldFiles.set(true)
 }
 
 tasks.register("generateCypherParser", GenerateParserTask.class) {
-    sourceFile.set(layout.projectDirectory.file("src/main/java/com/albertoventurini/graphdbplugin/language/cypher/lexer/Cypher.bnf"))
+    sourceFile.set(layout.projectDirectory.file("src/main/java/com/github/mdelambilly/graphdbplugin/language/cypher/lexer/Cypher.bnf"))
     targetRootOutputDir.set(layout.projectDirectory.dir("src/main/gen"))
-    pathToParser.set("com/albertoventurini/graphdbplugin/language/cypher/CypherParser.java")
-    pathToPsiRoot.set("com/albertoventurini/graphdbplugin/language/cypher/psi")
+    pathToParser.set("com/github/mdelambilly/graphdbplugin/language/cypher/CypherParser.java")
+    pathToPsiRoot.set("com/github/mdelambilly/graphdbplugin/language/cypher/psi")
     purgeOldFiles.set(true)
 }
 
