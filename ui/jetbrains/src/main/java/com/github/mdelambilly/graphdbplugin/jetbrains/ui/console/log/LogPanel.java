@@ -203,7 +203,7 @@ public class LogPanel implements Disposable {
 
     private void showPopup(String title, String details, Exception exception) {
         JPanel popupPanel = new JPanel(new BorderLayout());
-        popupPanel.setBorder(JBUI.Borders.empty(DataSourceDialog.THICKNESS));
+        popupPanel.setBorder(JBUI.Borders.empty(10));
 
         JTextArea exceptionDetails = new JTextArea();
         exceptionDetails.setLineWrap(false);
@@ -211,7 +211,7 @@ public class LogPanel implements Disposable {
         JLabel jLabel = new JLabel(exception.getMessage(), JLabel.LEFT);
 
         JBScrollPane scrollPane = new JBScrollPane(exceptionDetails);
-        scrollPane.setPreferredSize(new Dimension(-1, DataSourceDialog.HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(-1, 150));
         popupPanel.add(jLabel, BorderLayout.NORTH);
         popupPanel.add(scrollPane, BorderLayout.CENTER);
 

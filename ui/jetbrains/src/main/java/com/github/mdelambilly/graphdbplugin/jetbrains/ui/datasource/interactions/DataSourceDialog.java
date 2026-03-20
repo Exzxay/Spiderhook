@@ -13,28 +13,18 @@ import com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.state
 import com.github.mdelambilly.graphdbplugin.jetbrains.database.DatabaseManagerService;
 import com.github.mdelambilly.graphdbplugin.jetbrains.services.ExecutorService;
 import com.github.mdelambilly.graphdbplugin.jetbrains.ui.datasource.DataSourcesView;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.ui.popup.IconButton;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Optional;
-
-import static org.codehaus.plexus.util.ExceptionUtils.getCause;
 
 public abstract class DataSourceDialog extends DialogWrapper {
-    public static final int THICKNESS = 10;
-    public static final int HEIGHT = 150;
 
     protected DataSourceDialog(@NotNull final Project project, DataSourcesView dataSourcesView) {
         super(project);
@@ -54,48 +44,30 @@ public abstract class DataSourceDialog extends DialogWrapper {
     }
 
     public void validationPopup() {
-        JPanel popupPanel = new JPanel(new BorderLayout());
-        popupPanel.setBorder(JBUI.Borders.empty(THICKNESS));
-
         ValidationInfo validationInfo = doValidate();
         if (validationInfo != null) {
-            JLabel connectionFailed = new JLabel("Connection failed: " + validationInfo.message,
-                    JLabel.LEFT);
-            popupPanel.add(connectionFailed, BorderLayout.CENTER);
-            createPopup(popupPanel, getContentPanel());
+            Messages.showErrorDialog(getContentPanel(),
+                    validationInfo.message, "Test Connection");
         } else {
-            validateConnection(popupPanel, getContentPanel());
+            validateConnection();
         }
     }
 
-    private void createPopup(JPanel popupPanel, JComponent contentPanel) {
-        if (contentPanel.isShowing()) {
-            JButton okButton = new JButton("OK");
-            JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
-            buttonRow.add(okButton);
-            popupPanel.add(buttonRow, BorderLayout.SOUTH);
-
-            com.intellij.openapi.ui.popup.JBPopup popup = JBPopupFactory.getInstance()
-                    .createComponentPopupBuilder(popupPanel, okButton)
-                    .setTitle("Test Connection")
-                    .setResizable(true)
-                    .setMovable(true)
-                    .setCancelButton(new IconButton("Close", AllIcons.Actions.Close, AllIcons.Actions.CloseHovered))
-                    .createPopup();
-            okButton.addActionListener(e -> popup.cancel());
-            popup.showInCenterOf(contentPanel);
-        }
-    }
-
-    private void validateConnection(
-            JPanel popupPanel,
-            JComponent contentPanel) {
+    private void validateConnection() {
         final var executorService = ApplicationManager.getApplication().getService(ExecutorService.class);
         showLoading();
         executorService.runInBackground(
                 this::executeOkQuery,
-                (status) -> connectionSuccessful(popupPanel, contentPanel),
-                (exception) -> connectionFailed(exception, popupPanel, contentPanel),
+                (status) -> {
+                    hideLoading();
+                    Messages.showInfoMessage(getContentPanel(),
+                            "Connection successful!", "Test Connection");
+                },
+                (exception) -> {
+                    hideLoading();
+                    Messages.showErrorDialog(getContentPanel(),
+                            exception.getMessage(), "Test Connection");
+                },
                 ModalityState.current()
         );
     }
@@ -117,36 +89,5 @@ public abstract class DataSourceDialog extends DialogWrapper {
         } else {
             throw new RuntimeException("Unexpected test query output: " + value);
         }
-    }
-
-    private void connectionSuccessful(
-            JPanel popupPanel,
-            JComponent contentPanel) {
-        hideLoading();
-        JLabel connectionSuccessful = new JLabel("Connection successful!", JLabel.LEFT);
-        popupPanel.add(connectionSuccessful, BorderLayout.CENTER);
-
-        createPopup(popupPanel, contentPanel);
-    }
-
-    private void connectionFailed(
-            Exception exception,
-            JPanel popupPanel,
-            JComponent contentPanel) {
-        hideLoading();
-
-        JLabel connectionFailed = new JLabel("Connection failed: " +
-                exception.getMessage(), JLabel.LEFT);
-
-        JTextArea exceptionCauses = new JTextArea();
-        exceptionCauses.setLineWrap(false);
-        exceptionCauses.append(Optional.ofNullable(getCause(exception)).map(Throwable::toString).orElse(""));
-
-        JBScrollPane scrollPane = new JBScrollPane(exceptionCauses);
-        scrollPane.setPreferredSize(new Dimension(-1, HEIGHT));
-        popupPanel.add(connectionFailed, BorderLayout.NORTH);
-        popupPanel.add(scrollPane, BorderLayout.CENTER);
-
-        createPopup(popupPanel, contentPanel);
     }
 }

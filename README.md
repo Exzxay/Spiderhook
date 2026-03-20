@@ -24,7 +24,11 @@ This plugin is based on the
 plugin, originally developed by [Neueda Technologies](http://technologies.neueda.com/).
 It was then forked and maintained by [Alberto Venturini](https://github.com/albertoventurini/graphdb-intellij-plugin),
 whose repository is now archived.
-This fork continues the work with support for IntelliJ 2025.3 and Neo4j 5.26 LTS.
+This fork continues the work with support for IntelliJ 2025.3 and the following databases:
+
+- Neo4j 5.x LTS, including AuraDB and Neo4j Sandbox
+- Neo4j 2026.x, including AuraDB and Neo4j Sandbox
+- [DozerDB](https://dozerdb.org/)
 
 ## Installation
 

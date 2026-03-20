@@ -24,7 +24,9 @@
         <p>
             <b>Supported databases:</b>
             <ul>
-                <li>Neo4j 5.x (Bolt), including AuraDB</li>
+                <li>Neo4j 5.x LTS, including AuraDB and Neo4j Sandbox</li>
+                <li>Neo4j 2026.x, including AuraDB and Neo4j Sandbox</li>
+                <li><a href="https://dozerdb.org/">DozerDB</a></li>
             </ul>
         </p>
 
@@ -57,7 +59,7 @@
             <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
             plugin originally developed by Neueda Technologies, Ltd., later maintained by
             <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</a>.
-            This fork continues the work with support for IntelliJ 2025.3 and Neo4j 5.26 LTS.
+            This fork continues the work with support for IntelliJ 2025.3, Neo4j 5.26 LTS and Neo4j 2026.x.
         </p>
         <p>
             If this plugin is useful to you, consider
