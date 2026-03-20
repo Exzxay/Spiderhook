@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.ui.components.JBTabbedPane;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
@@ -48,6 +50,8 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
     private AsyncProcessIcon loadingIcon;
     private JComboBox<String> authTypeComboBox;
     private JScrollPane scrollPane;
+    private JTextArea auraCredentialsArea;
+    private JBTabbedPane tabs;
 
     public Neo4jBoltDataSourceDialog(
             @NotNull final Project project,
@@ -65,6 +69,7 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
         dataSourcesComponent = dataSourcesView.getComponent();
         testConnectionButton.addActionListener(e -> validationPopup());
         authTypeComboBox.addActionListener(this::handleAuthTypeChanged);
+        setupHostProtocolStripper();
     }
 
     @Nullable
@@ -135,6 +140,7 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
     private void setupUI() {
         dataSourceNameField = new JBTextField();
         protocolComboBox = new JComboBox<>(new String[]{"bolt", "bolt+s", "bolt+ssc", "neo4j", "neo4j+s", "neo4j+ssc"});
+        protocolComboBox.setMaximumRowCount(6);
         hostField = new JBTextField("localhost");
         portField = new JBTextField("7687");
         databaseField = new JBTextField();
@@ -155,6 +161,7 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
 
         // --- General tab panel (8 rows) ---
         JPanel generalPanel = new JPanel(new GridBagLayout());
+        generalPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
         addLabelAndField(generalPanel, "Protocol",       protocolComboBox,  0, labelInsets, fieldInsets);
         addLabelAndField(generalPanel, "Host",           hostField,         1, labelInsets, fieldInsets);
         addLabelAndField(generalPanel, "Port",           portField,         2, labelInsets, fieldInsets);
@@ -177,13 +184,39 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
         filler.fill = GridBagConstraints.VERTICAL;
         generalPanel.add(Box.createVerticalGlue(), filler);
 
-        JBTabbedPane tabs = new JBTabbedPane();
+        // --- AuraDB tab ---
+        auraCredentialsArea = new JTextArea();
+        auraCredentialsArea.setRows(8);
+        auraCredentialsArea.setLineWrap(true);
+        auraCredentialsArea.setToolTipText("Paste the credentials file provided by Neo4j AuraDB");
+        JScrollPane auraScroll = new JScrollPane(auraCredentialsArea);
+
+        JButton fillButton = new JButton("Fill from credentials");
+        fillButton.addActionListener(e -> fillFromAuraCredentials());
+
+        JLabel auraHint = new JLabel("<html>Paste the credentials file provided by AuraDB<br>and click \"Fill from credentials\".</html>");
+
+        JPanel auraPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints ac = new GridBagConstraints();
+        ac.gridx = 0; ac.gridy = 0; ac.weightx = 1.0; ac.fill = GridBagConstraints.HORIZONTAL;
+        ac.insets = new Insets(8, 8, 4, 8);
+        auraPanel.add(auraHint, ac);
+        ac.gridy = 1; ac.weighty = 1.0; ac.fill = GridBagConstraints.BOTH;
+        ac.insets = new Insets(0, 8, 4, 8);
+        auraPanel.add(auraScroll, ac);
+        ac.gridy = 2; ac.weighty = 0.0; ac.fill = GridBagConstraints.NONE;
+        ac.anchor = GridBagConstraints.EAST;
+        ac.insets = new Insets(0, 8, 8, 8);
+        auraPanel.add(fillButton, ac);
+
+        tabs = new JBTabbedPane();
         tabs.addTab("General", generalPanel);
+        tabs.addTab("AuraDB", auraPanel);
 
         // --- Content panel (inside scroll pane) ---
         JPanel content = new JPanel(new GridBagLayout());
-        content.setMinimumSize(new Dimension(400, 250));
-        content.setPreferredSize(new Dimension(600, 350));
+        content.setMinimumSize(new Dimension(400, 380));
+        content.setPreferredSize(new Dimension(600, 460));
 
         GridBagConstraints cc = new GridBagConstraints();
         cc.gridx = 0; cc.weightx = 1.0;
@@ -209,6 +242,34 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
         fc.fill = GridBagConstraints.HORIZONTAL; fc.weightx = 1.0;
         fc.insets = fieldInsets;
         panel.add(field, fc);
+    }
+
+    private void setupHostProtocolStripper() {
+        hostField.getDocument().addDocumentListener(new DocumentListener() {
+            private boolean updating = false;
+
+            private void stripProtocol() {
+                if (updating) return;
+                String text = hostField.getText();
+                for (int i = 0; i < protocolComboBox.getItemCount(); i++) {
+                    String scheme = protocolComboBox.getItemAt(i) + "://";
+                    if (text.startsWith(scheme)) {
+                        updating = true;
+                        final int idx = i;
+                        SwingUtilities.invokeLater(() -> {
+                            hostField.setText(text.substring(scheme.length()));
+                            protocolComboBox.setSelectedIndex(idx);
+                            updating = false;
+                        });
+                        break;
+                    }
+                }
+            }
+
+            @Override public void insertUpdate(DocumentEvent e) { stripProtocol(); }
+            @Override public void removeUpdate(DocumentEvent e) {}
+            @Override public void changedUpdate(DocumentEvent e) {}
+        });
     }
 
     private void handleAuthTypeChanged(final ActionEvent e) {
@@ -259,11 +320,57 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
         loadingPanel.setVisible(false);
     }
 
+    private void fillFromAuraCredentials() {
+        String text = auraCredentialsArea.getText();
+        String uri = null, username = null, password = null, database = null, instanceName = null;
+
+        for (String line : text.lines().toList()) {
+            line = line.trim();
+            if (line.startsWith("#") || line.isEmpty()) continue;
+            int eq = line.indexOf('=');
+            if (eq < 0) continue;
+            String key = line.substring(0, eq).trim();
+            String value = line.substring(eq + 1).trim();
+            switch (key) {
+                case "NEO4J_URI"      -> uri = value;
+                case "NEO4J_USERNAME" -> username = value;
+                case "NEO4J_PASSWORD" -> password = value;
+                case "NEO4J_DATABASE" -> database = value;
+                case "AURA_INSTANCENAME" -> instanceName = value;
+            }
+        }
+
+        if (uri != null) {
+            int schemeSep = uri.indexOf("://");
+            if (schemeSep >= 0) {
+                String scheme = uri.substring(0, schemeSep);
+                String host = uri.substring(schemeSep + 3);
+                for (int i = 0; i < protocolComboBox.getItemCount(); i++) {
+                    if (protocolComboBox.getItemAt(i).equals(scheme)) {
+                        protocolComboBox.setSelectedIndex(i);
+                        break;
+                    }
+                }
+                hostField.setText(host);
+            }
+        }
+        if (username != null) userField.setText(username);
+        if (password != null) passwordField.setText(password);
+        if (database != null) databaseField.setText(database);
+        if (dataSourceNameField.getText().isBlank() && instanceName != null) {
+            dataSourceNameField.setText(instanceName);
+        }
+        // AuraDB uses port 7687 by default
+        portField.setText("7687");
+        // Switch back to General tab to let the user review
+        tabs.setSelectedIndex(0);
+    }
+
     private Data extractData() {
         return new Data(
                 dataSourceNameField.getText(),
                 protocolComboBox.getItemAt(protocolComboBox.getSelectedIndex()),
-                hostField.getText(),
+                hostField.getText().trim(),
                 portField.getText(),
                 authTypeComboBox.getItemAt(authTypeComboBox.getSelectedIndex()),
                 databaseField.getText(),

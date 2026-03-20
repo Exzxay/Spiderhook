@@ -70,15 +70,20 @@ public abstract class DataSourceDialog extends DialogWrapper {
 
     private void createPopup(JPanel popupPanel, JComponent contentPanel) {
         if (contentPanel.isShowing()) {
-            JBPopupFactory.getInstance()
-                    .createComponentPopupBuilder(popupPanel, getPreferredFocusedComponent())
-                    .setCancelButton(new IconButton("Close", AllIcons.Actions.Close))
+            JButton okButton = new JButton("OK");
+            JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
+            buttonRow.add(okButton);
+            popupPanel.add(buttonRow, BorderLayout.SOUTH);
+
+            com.intellij.openapi.ui.popup.JBPopup popup = JBPopupFactory.getInstance()
+                    .createComponentPopupBuilder(popupPanel, okButton)
                     .setTitle("Test Connection")
                     .setResizable(true)
                     .setMovable(true)
                     .setCancelButton(new IconButton("Close", AllIcons.Actions.Close, AllIcons.Actions.CloseHovered))
-                    .createPopup()
-                    .showInCenterOf(contentPanel);
+                    .createPopup();
+            okButton.addActionListener(e -> popup.cancel());
+            popup.showInCenterOf(contentPanel);
         }
     }
 
