@@ -17,7 +17,7 @@ and ensure compatibility with **Neo4j 5.26 LTS**.
 - Build: Gradle 9.4.0 with IntelliJ Platform Gradle Plugin **2.13.1**
 - Gradle Plugin ID: `org.jetbrains.intellij.platform` (NOT `org.jetbrains.intellij`)
 - IntelliJ submodules: use `org.jetbrains.intellij.platform.module`
-- Neo4j Driver: `org.neo4j.driver:neo4j-java-driver:5.26.2`
+- Neo4j Driver: `org.neo4j.driver:neo4j-java-driver:5.26.10`
 - Tests: JUnit 5, Testcontainers (image `neo4j:5.26-community`)
 
 ## Module structure
@@ -48,7 +48,7 @@ graph-database-plugin\   → Main plugin module, assembles everything, produces 
 - `sinceBuild = 253`
 - `untilBuild = 253.*`
 - `javaVersion = 21`
-- `neo4jDriverVersion = 5.26.2`
+- `neo4jDriverVersion = 5.26.10`
 
 ## Useful commands
 
