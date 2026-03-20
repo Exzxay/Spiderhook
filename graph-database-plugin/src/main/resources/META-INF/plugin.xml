@@ -59,6 +59,10 @@
             <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</a>.
             This fork continues the work with support for IntelliJ 2025.3 and Neo4j 5.26 LTS.
         </p>
+        <p>
+            If this plugin is useful to you, consider
+            <a href="https://github.com/sponsors/mdelambilly">sponsoring its development</a>.
+        </p>
         ]]></description>
 
     <!-- Change notes are automatically replaced by the patchPluginXml task -->

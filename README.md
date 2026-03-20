@@ -14,8 +14,10 @@ the [Cypher](https://opencypher.org/) query language
 
 This plugin is maintained and developed in my free time as a personal project,
 for no commercial reasons.
-Contributions and donations are welcome! Please see the [Getting involved](#getting-involved)
+Contributions and sponsorships are welcome! Please see the [Getting involved](#getting-involved)
 section for more information on how to contribute to this project.
+
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/mdelambilly?label=Sponsor&logo=GitHub)](https://github.com/sponsors/mdelambilly)
 
 This plugin is based on the
 [Graph Database Support](https://github.com/neueda/jetbrains-plugin-graph-database-support)
@@ -97,6 +99,12 @@ The plugin can also be manually tested in a sandboxed instance of IntelliJ:
 
 - For bugs, please [open an issue](https://github.com/mdelambilly/graphdb-intellij-plugin/issues/new/choose).
 - For questions or general discussion, use [GitHub Discussions](https://github.com/mdelambilly/graphdb-intellij-plugin/discussions).
+
+## Supporting the project
+
+If this plugin is useful to you, consider sponsoring its development:
+
+- [GitHub Sponsors](https://github.com/sponsors/mdelambilly)
 
 ## Getting involved
 
