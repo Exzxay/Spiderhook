@@ -8,6 +8,8 @@ import org.jetbrains.changelog.Changelog
 
 apply plugin: "org.jetbrains.intellij.platform"
 
+version = providers.gradleProperty('pluginVersion').get()
+
 repositories {
     intellijPlatform {
         defaultRepositories()
@@ -30,6 +32,7 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         name = 'GraphDatabase'
+        version = providers.gradleProperty('pluginVersion')
 
         ideaVersion {
             sinceBuild = providers.gradleProperty('sinceBuild')
