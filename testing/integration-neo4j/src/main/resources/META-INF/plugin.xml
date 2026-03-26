@@ -1,0 +1,125 @@
+<!-- Test plugin descriptor for integration-neo4j tests.
+     Registers all services and extensions required by LightJavaCodeInsightFixtureTestCase tests.
+     The main plugin.xml is not loaded automatically in platform.module test sandboxes. -->
+<idea-plugin>
+    <id>com.github.mdelambilly.jetbrains.graphdbplugin.tests</id>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <!-- Cypher language: file type and parser -->
+        <fileType
+                name="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.file.CypherFileType"
+                fieldName="INSTANCE"
+                language="Cypher"
+                extensions="cyp;cql;cypher"/>
+        <lang.parserDefinition
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.CypherParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.highlight.CypherSyntaxHighlighterFactory"/>
+        <annotator
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.highlight.CypherSyntaxHighlighterAnnotator"/>
+        <lang.commenter
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.commenter.CypherCommenter"/>
+        <lang.braceMatcher
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.lang.CypherBraceMatcher"/>
+        <lang.namesValidator
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.lang.CypherNameValidator"/>
+        <spellchecker.support
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.lang.CypherSpellcheckingStrategy"/>
+
+        <!-- Completion, references, refactoring -->
+        <completion.contributor
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.completion.CypherCompletionContributor"/>
+        <psi.referenceContributor
+                implementation="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherReferenceContributor"/>
+        <lang.refactoringSupport
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherRefactoringSupportProvider"/>
+        <renameInputValidator
+                implementation="com.github.mdelambilly.graphdbplugin.language.cypher.references.CypherRenameInputValidator"/>
+        <codeInsight.parameterInfo
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.editor.CypherParameterInfoHandler"/>
+
+        <!-- Documentation -->
+        <lang.documentationProvider
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.documentation.CypherDocumentationProvider"/>
+
+        <!-- Formatting -->
+        <lang.formatter
+                language="Cypher"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.formatter.CypherFormattingModelBuilder"/>
+        <preFormatProcessor
+                implementation="com.github.mdelambilly.graphdbplugin.language.cypher.formatter.CypherPreFormatter"/>
+        <codeStyleSettingsProvider
+                implementation="com.github.mdelambilly.graphdbplugin.jetbrains.formatter.CypherCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="com.github.mdelambilly.graphdbplugin.jetbrains.formatter.CypherLanguageCodeStyleSettingsProvider"/>
+
+        <!-- Typed handler -->
+        <typedHandler
+                implementation="com.github.mdelambilly.graphdbplugin.language.cypher.editor.CypherTypedHandlerDelegate"/>
+
+        <!-- Inspections -->
+        <localInspection
+                language="Cypher"
+                displayName="Cypher EXPLAIN warning inspection"
+                groupPath="Cypher" groupName="General"
+                enabledByDefault="true" level="WARNING"
+                implementationClass="com.github.mdelambilly.graphdbplugin.jetbrains.inspection.CypherExplainWarningInspection"/>
+        <localInspection
+                language="Cypher"
+                displayName="Function call inspection"
+                groupPath="Cypher" groupName="General"
+                enabledByDefault="true" level="ERROR"
+                implementationClass="com.github.mdelambilly.graphdbplugin.language.cypher.inspections.CypherFunctionCallInspection"/>
+
+        <!-- Color settings (needed by some formatting tests) -->
+        <colorSettingsPage
+                implementation="com.github.mdelambilly.graphdbplugin.language.cypher.settings.CypherColorSettingsPage"/>
+
+        <!-- Application services -->
+        <applicationService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.jetbrains.component.settings.SettingsComponent"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.component.settings.SettingsComponentImpl"/>
+        <applicationService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.jetbrains.component.highlighter.QueryHighlighterComponent"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.component.highlighter.QueryHighlighterComponentImpl"/>
+        <applicationService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.visualization.services.LookAndFeelService"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.services.IdeaLookAndFeelService"/>
+        <applicationService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.jetbrains.database.DatabaseManagerService"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.database.DatabaseManagerServiceImpl"/>
+        <applicationService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.jetbrains.services.ExecutorService"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.services.ExecutorServiceImpl"
+                testServiceImplementation="com.github.mdelambilly.graphdbplugin.test.mocks.service.DummyExecutorService"/>
+
+        <!-- Project services -->
+        <projectService
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.DataSourcesComponent"/>
+        <projectService
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.metadata.DataSourcesComponentMetadata"/>
+        <projectService
+                serviceInterface="com.github.mdelambilly.graphdbplugin.language.cypher.completion.metadata.CypherMetadataProviderService"
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.language.cypher.completion.metadata.CypherMetadataProviderServiceImpl"/>
+        <projectService
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.params.ParametersService"/>
+        <projectService
+                serviceImplementation="com.github.mdelambilly.graphdbplugin.jetbrains.database.VersionService"/>
+
+    </extensions>
+</idea-plugin>
