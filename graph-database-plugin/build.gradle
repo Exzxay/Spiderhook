@@ -36,7 +36,6 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty('sinceBuild')
-            untilBuild = providers.gradleProperty('untilBuild')
         }
 
         changeNotes = (providers.provider {
