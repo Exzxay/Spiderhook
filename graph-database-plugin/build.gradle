@@ -38,14 +38,12 @@ intellijPlatform {
             sinceBuild = providers.gradleProperty('sinceBuild')
         }
 
-        changeNotes = (providers.provider {
-            changelog.getAll().values()
-                    .collect { it.withHeader(true) }
-                    .collect { it.withLinkedHeader(false) }
-                    .collect { it.withSummary(true) }
-                    .collect { changelog.renderItem(it as Changelog.Item, Changelog.OutputType.HTML) }
-                    .join('<br>\n')
-        } as Provider<String>)
+        changeNotes = providers.provider {
+            changelog.renderItem(
+                changelog.get(providers.gradleProperty('pluginVersion').get()).withHeader(false),
+                Changelog.OutputType.HTML
+            )
+        }
     }
 
     pluginVerification {
