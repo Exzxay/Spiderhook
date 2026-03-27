@@ -7,6 +7,7 @@
  */
 package com.github.mdelambilly.graphdbplugin.language.cypher.editor;
 
+import com.github.mdelambilly.graphdbplugin.language.cypher.CypherLanguage;
 import com.github.mdelambilly.graphdbplugin.language.cypher.completion.metadata.atoms.CypherKeywords;
 import com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherStringLiteral;
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate;
@@ -39,6 +40,10 @@ public class CypherTypedHandlerDelegate extends TypedHandlerDelegate {
     @NotNull
     @Override
     public Result charTyped(char c, @NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
+        if (!file.getLanguage().isKindOf(CypherLanguage.INSTANCE)) {
+            return Result.CONTINUE;
+        }
+
         if (c != ' ' && c != '\n' && c != '\t' && c != '(' && c != ')' && c != ',' && c != '[' && c != '{') {
             return Result.CONTINUE;
         }

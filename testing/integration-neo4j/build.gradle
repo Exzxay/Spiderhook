@@ -16,7 +16,6 @@ dependencies {
         bundledPlugin('com.intellij.java')
     }
 
-    testImplementation project(':graph-database-plugin')
     testImplementation project(':ui:jetbrains')
     testImplementation project(':language:cypher')
     testImplementation project(':database:api')
