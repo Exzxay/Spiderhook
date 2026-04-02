@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0]
+
+### Added
+
+- Full Cypher 5 / 2025+ grammar coverage for IntelliJ 2025.3+
+- Quantified path patterns, parenthesized paths, and path selectors
+  (ANY SHORTEST, ALL SHORTEST, SHORTEST n, GROUP)
+- Label expressions: IS / & / | / ! syntax
+- Complete GRANT / DENY / REVOKE privilege model with all Neo4j 5 privilege types
+- Database administration: CREATE/ALTER/DROP/START/STOP DATABASE,
+  CREATE/ALTER/DROP ALIAS, topology and wait clauses
+- Extended CALL IN TRANSACTIONS: batch size (OF n ROW/ROWS),
+  ON ERROR (CONTINUE/BREAK/FAIL), REPORT STATUS AS
+- Server management: ENABLE/ALTER/DROP SERVER, SHOW SERVERS,
+  DEALLOCATE/REALLOCATE DATABASES, DRYRUN
+- TERMINATE TRANSACTIONS, RENAME ROLE/USER/SERVER
+
+### Fixed
+
+- Composite constraint property lists now parse correctly:
+  `REQUIRE (p.name, p.email) IS NODE KEY`
+- EXISTS { } and COUNT { } subqueries with a bare pattern form
+  (no RETURN inside) no longer produce a spurious parse error
+
 ## [1.0.2]
 
 ### Fixed
