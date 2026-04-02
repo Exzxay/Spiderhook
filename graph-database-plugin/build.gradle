@@ -56,6 +56,12 @@ intellijPlatform {
         token = providers.environmentVariable('INTELLIJ_TOKEN')
     }
 
+    signing {
+        certificateChain = providers.environmentVariable('SIGNING_CERTIFICATE_CHAIN')
+        privateKey = providers.environmentVariable('SIGNING_KEY')
+        password = providers.environmentVariable('SIGNING_KEY_PASSWORD')
+    }
+
     sandboxContainer = project.file("${System.getProperty('user.home')}/.intellij/graphdb")
 }
 
