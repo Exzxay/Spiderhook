@@ -6,66 +6,68 @@
     <vendor url="https://github.com/mdelambilly/graphdb-intellij-plugin">Michel de Lambilly</vendor>
 
     <description><![CDATA[
-        <p>
-            This plugin provides useful features for working with graph databases.
-            It adds syntax highlighting and autocompletion for the
-            <a href="https://opencypher.org/">Cypher</a> query language, and
-            it supports connecting to and querying local and remote graph databases.
-        </p>
-        <p>
-            <b>Features:</b>
-        <ul>
-            <li>Write and execute Cypher queries.</li>
-            <li>Explore query results in graph or table view.</li>
-            <li>Manage data sources.</li>
-        </ul>
-        </p>
+    <p>
+        Cypher language support for Neo4j 5+ / 2025+ — syntax highlighting,
+        code completion, query execution, and graph visualization in your
+        JetBrains IDE.
+    </p>
 
-        <p>
-            <b>Supported databases:</b>
-            <ul>
-                <li>Neo4j 5.x LTS, including AuraDB and Neo4j Sandbox</li>
-                <li>Neo4j 2026.x, including AuraDB and Neo4j Sandbox</li>
-                <li><a href="https://dozerdb.org/">DozerDB</a></li>
-            </ul>
-        </p>
+    <p><b>Neo4j 5 / 2025+ grammar — the most complete available</b></p>
+    <p>
+        Fully aligned with the official Neo4j CypherParser.g4 specification.
+        The Cypher language changed significantly since Neo4j 4.x — this plugin
+        supports the modern syntax:
+    </p>
+    <ul>
+        <li>Label expressions: <code>:Person&amp;Employee</code>, <code>:Person|Animal</code>, <code>:!Deleted</code>, <code>IS Person</code></li>
+        <li>Quantified path patterns: <code>-[:KNOWS]-&gt;{2,5}</code>, <code>+</code>, <code>*</code></li>
+        <li>Path selectors: <code>ANY SHORTEST</code>, <code>ALL SHORTEST</code>, <code>SHORTEST k PATHS</code></li>
+        <li>Modern constraints: <code>FOR/REQUIRE</code>, <code>IS UNIQUE</code>, <code>IS NODE KEY</code>, <code>IS NOT NULL</code>, <code>IS :: STRING</code></li>
+        <li>SHOW commands with YIELD: <code>SHOW INDEXES YIELD name, type WHERE ...</code></li>
+        <li>Modern expressions: <code>COLLECT {}</code>, <code>EXISTS {}</code>, <code>COUNT {}</code>, type predicates</li>
+        <li>USE clause, complete privilege model, database admin, server management</li>
+    </ul>
 
-        <p>
-            <b>Supported query languages:</b>
-        <ul>
-            <li>Cypher</li>
-            <ul>
-                <li>Understands queries in `.cyp`, `.cypher` or `.cql` files.</li>
-                <li>Syntax highlight and error reporting.</li>
-                <li>Refactoring support for identifiers, labels, relationship types and properties.</li>
-                <li>
-                    Autocompletion support for identifiers, labels, relationship types, properties and stored procedures.
-                    Information gathered from existing queries and configured data sources.
-                </li>
-                <li>Code reformatting.</li>
-                <li>Inspections: database warnings, function checks, type system.</li>
-                <li>Auto-inject Cypher language for:
-                    <a href="https://github.com/neo4j/neo4j">neo4j</a>,
-                    <a href="https://github.com/neo4j/neo4j-ogm">neo4j-ogm</a>,
-                    <a href="https://github.com/spring-projects/spring-data-neo4j">spring-data-neo4j</a>,
-                    <a href="https://github.com/neo4j/neo4j/tree/3.1/community/neo4j-harness">neo4j-harness</a>,
-                    <a href="https://github.com/nigelsmall/py2neo">py2neo</a>.
-                </li>
-            </ul>
-        </ul>
-        </p>
-        <p>
-            This plugin is based on the
-            <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
-            plugin originally developed by Neueda Technologies, Ltd., later maintained by
-            <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</a>.
-            This fork continues the work with support for IntelliJ 2025.3, Neo4j 5.26 LTS and Neo4j 2026.x.
-        </p>
-        <p>
-            If this plugin is useful to you, consider
-            <a href="https://github.com/sponsors/mdelambilly">sponsoring its development</a>.
-        </p>
-        ]]></description>
+    <p><b>IDE features</b></p>
+    <ul>
+        <li>Write and execute Cypher queries</li>
+        <li><b>AuraDB quick connect</b> — paste your AuraDB connection details and the plugin auto-fills the connection form</li>
+        <li>Explore query results in graph or table view</li>
+        <li>Syntax highlighting and error detection for <code>.cyp</code>, <code>.cypher</code>, <code>.cql</code> files</li>
+        <li>Code completion for keywords, labels, relationship types, properties, procedures, and functions</li>
+        <li>Refactoring support for identifiers, labels, relationship types, and properties</li>
+        <li>Code formatting and inspections</li>
+        <li>Quick documentation for procedures and functions</li>
+        <li>Auto-inject Cypher for
+            <a href="https://github.com/neo4j/neo4j">neo4j</a>,
+            <a href="https://github.com/neo4j/neo4j-ogm">neo4j-ogm</a>,
+            <a href="https://github.com/spring-projects/spring-data-neo4j">spring-data-neo4j</a>,
+            <a href="https://github.com/neo4j/neo4j/tree/3.1/community/neo4j-harness">neo4j-harness</a>,
+            <a href="https://github.com/nigelsmall/py2neo">py2neo</a>
+        </li>
+    </ul>
+
+    <p><b>Compatible databases</b></p>
+    <ul>
+        <li>Neo4j 5.x LTS, including AuraDB and Neo4j Sandbox</li>
+        <li>Neo4j 2025+ / 2026.x, including AuraDB</li>
+        <li>Neo4j Docker (official images)</li>
+        <li><a href="https://dozerdb.org/">DozerDB</a></li>
+        <li>Neo4j 4.x (legacy syntax supported)</li>
+    </ul>
+
+    <p>
+        Based on the
+        <a href="https://github.com/neueda/jetbrains-plugin-graph-database-support">Graph Database Support</a>
+        plugin by Neueda Technologies, later maintained by
+        <a href="https://github.com/albertoventurini/graphdb-intellij-plugin">Alberto Venturini</a>.
+        This fork adds full Neo4j 5+ grammar support and IntelliJ 2025.3+ compatibility.
+    </p>
+    <p>
+        If this plugin is useful to you, consider
+        <a href="https://github.com/sponsors/mdelambilly">sponsoring its development</a>.
+    </p>
+]]></description>
 
     <!-- Change notes are automatically replaced by the patchPluginXml task -->
     <change-notes><![CDATA[
