@@ -2,6 +2,16 @@
 
 ## Bugs
 
+### AuraDB — database version not displayed correctly
+
+The version shown in the data source panel is incorrect or missing when connected to AuraDB.
+Likely caused by a change in the version reporting format between Neo4j 5.x and Neo4j 2025+
+(formerly Neo4j 2026.x). The `VersionService` may be parsing a version string format that
+no longer matches what the server returns.
+
+To investigate: check what `RETURN neo4j.version()` (or the driver's `ServerInfo`) returns
+on an AuraDB instance and compare with the expected format in `VersionService`.
+
 ### Parameters saved to global scope instead of per-connection
 
 When adding parameters for a specific database/connection, they end up stored in
@@ -23,6 +33,17 @@ listener (or PSI change listener) may not fire on undo events.
 String syntax highlighting stops working occasionally — the fix is to remove and re-type
 one of the string delimiters to force re-parsing. Likely a lexer/incremental parsing issue
 where the editor state gets out of sync.
+
+### Missing run gutter icon on some valid queries
+
+Some valid Cypher queries do not get a run gutter icon. Known examples:
+
+- `MERGE (p:Person {name: 'Bob'}) ON CREATE SET p.created = date() ON MATCH SET p.updated = date()`
+- `MATCH (n:Person&Employee) RETURN n`
+
+The second example uses a label expression (`&`) which may not be recognized as a top-level
+statement by the line marker provider. Root cause unclear — likely the PSI structure produced
+for these queries is not matched by `CypherLineMarkerProvider`.
 
 ### Multiple Cypher queries: only the first one gets a run gutter icon
 
