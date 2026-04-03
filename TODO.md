@@ -1,0 +1,120 @@
+# GraphDB Plugin — TODO
+
+## Bugs
+
+### Parameters saved to global scope instead of per-connection
+
+When adding parameters for a specific database/connection, they end up stored in
+the global parameter list instead. The per-connection parameter list then disappears.
+
+- Parameters should be scoped to the connection they were defined for
+- The per-connection parameter list should remain visible and editable independently
+  from the global list
+
+### Undo (Ctrl+Z) — executed query is the pre-undo version
+
+After undoing changes with Ctrl+Z, executing a query runs the version that was just
+removed by the undo, not the current visible content. The plugin likely caches the
+query text and does not refresh it when the document changes via undo. The document
+listener (or PSI change listener) may not fire on undo events.
+
+### Cypher syntax highlighting intermittently broken
+
+String syntax highlighting stops working occasionally — the fix is to remove and re-type
+one of the string delimiters to force re-parsing. Likely a lexer/incremental parsing issue
+where the editor state gets out of sync.
+
+### Multiple Cypher queries: only the first one gets a run gutter icon
+
+When adding a new Cypher query at the top of a file, a run button (play icon) appears
+correctly in the gutter next to it, but all subsequent queries in the file lose their
+run buttons. Adding a query at the end of the file works correctly. The issue is specific
+to prepending — likely an offset/range calculation bug when re-indexing existing queries.
+
+### Database selection popup positioning
+
+The popup for choosing the target database appears at an inconsistent/unexpected
+position on screen. It should appear anchored to the element that triggered it
+(toolbar button, editor gutter, etc.).
+
+### ALTER CURRENT USER SET PASSWORD — SET consumed as username
+
+`ALTER CURRENT USER SET PASSWORD 'newpass'` produces `SET expected, got 'PASSWORD'`.
+
+Root cause: `AlterUser ::= K_ALTER K_CURRENT? K_USER SymbolicNameString? (SetPassword | SetStatus)+`.
+The `SymbolicNameString?` optional username is greedy — `SET` is a `ReservedWord` and therefore
+a valid `SymbolicNameString`, so the parser consumes it as the username. The mandatory `SET`
+required by `SetPassword` is then missing, and `PASSWORD` is unexpected.
+
+Fix: add a negative lookahead on `SymbolicNameString?` to exclude `K_SET` and `K_STATUS`,
+or change the rule to require that the username is not a clause-starting keyword:
+
+```bnf
+AlterUser ::= K_ALTER K_CURRENT? K_USER !(K_SET | K_STATUS) SymbolicNameString? (SetPassword | SetStatus)+ {pin=3}
+```
+
+### GRANT privilege — incomplete CreatePrivilege coverage causes parse error
+
+`GRANT CREATE ON DBMS TO admin` produces a PsiError after `GRANT`.
+
+Root cause: `CreatePrivilege` lists specific `K_CREATE <type> K_ON K_DBMS` forms
+(DATABASE, ALIAS, ROLE, USER, COMPOSITE DATABASE) but does not cover a bare
+`K_CREATE K_ON K_DBMS`. The grammar likely needs an additional alternative, or this
+specific GRANT syntax is invalid and the test case should be updated to a valid form.
+
+To investigate: verify whether `GRANT CREATE ON DBMS TO admin` is valid Neo4j 5 Cypher.
+If valid, add the missing alternative to `CreatePrivilege`. If not valid, remove or
+replace the test case in `PrivilegeCommands.cyp`.
+
+### Deprecated and internal IntelliJ APIs (verifyPlugin report, v1.1.0)
+
+Reported by the IntelliJ Plugin Verifier against 2025.3 and 2026.1.
+
+#### Scheduled for removal (priority: high)
+
+- `ComponentManager.getComponent(Class)` — called in `QueryHighlighterComponentImpl.<init>()` and `.dispose()`.
+  Replace with service injection via constructor or `project.getService()`.
+
+#### Deprecated (priority: medium)
+
+- `ReadAction.compute(ThrowableComputable)` — called 2x in `FileUtil` (`getScratchFile`, `getDataSourceFile`).
+  Replace with `ReadAction.computeInReadAction()` or `AppExecutorUtil` equivalent.
+- `ActionUtil.invokeAction(...)` — called in `CypherLineMarkerProvider`.
+  Replace with `AnAction.actionPerformed(AnActionEvent)` directly.
+- `PluginDescriptor.isEnabled()` — called in `PluginUtil.isEnabled()`.
+  Replace with `PluginManagerCore.isPluginInstalled()` / `getLoadedPlugins()`.
+- `BalloonPopupBuilderImpl` constructor — called in `GraphPanel.balloonBuilder()`.
+  Use `JBPopupFactory.getInstance().createBalloonBuilder()` instead.
+- `JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS` and `ALLOW_NUMERIC_LEADING_ZEROS` — in `ParametersService`.
+  Migrate to `JsonReadFeature` enum (Jackson 2.12+).
+- `Charsets.UTF_8` (Guava) — in `DocumentationStorage`.
+  Replace with `java.nio.charset.StandardCharsets.UTF_8`.
+
+---
+
+### CALL IN TRANSACTIONS without RETURN causes a spurious parse error
+
+`CALL { ... } IN TRANSACTIONS OF 1 ROW ON ERROR FAIL;` produces a
+`<reading clause>, REPORT or RETURN expected` error even though the statement
+is valid Cypher 5.
+
+Root cause: `ReadingWithReturn ::= ReadingClause* Return {pin=1}` — the `pin=1`
+triggers on `ReadingClause*` which always matches (even zero times), committing
+the parser before it can determine whether a `RETURN` is actually present.
+`CALL { }` is a `ReadingClause`, so the parser commits and then fails when it
+finds `;` instead of `RETURN`.
+
+Fix: change `SinglePartQuery` to add a third alternative for standalone reading
+clauses (valid in Cypher 5 for side-effect queries):
+
+```bnf
+SinglePartQuery ::= ((ReadingClause* UpdatingClause+ Return?) | ReadingWithReturn | StandaloneReadingClauses)
+ReadingWithReturn ::= ReadingClause* Return {pin=2 recoverWhile=statement_recover}
+private StandaloneReadingClauses ::= ReadingClause+ {pin=1 recoverWhile=statement_recover}
+```
+
+`pin=2` on `ReadingWithReturn` delays the commit until `K_RETURN` is actually
+seen, allowing backtrack into `StandaloneReadingClauses` when no `RETURN` follows.
+This change will alter the PSI trees for all tests that contain standalone reading
+clauses without `RETURN` — `.txt` files must be regenerated.
+

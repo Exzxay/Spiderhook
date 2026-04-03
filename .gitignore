@@ -6,9 +6,6 @@ build/
 # Ignore Gradle GUI config
 gradle-app.setting
 
-# My working file
-TODO.md
-
 # Cache of project
 .gradletasknamecache
 
@@ -114,6 +111,7 @@ gen/
 
 # Local documentation (not versioned)
 documents/
+IMPROVEMENTS.md
 
 # Plugin signing keys (never commit)
 *.pem
