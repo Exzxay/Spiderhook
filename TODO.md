@@ -1,5 +1,24 @@
 # GraphDB Plugin — TODO
 
+## Compatibility
+
+### Verify compatibility with PyCharm
+
+Neo4j is widely used in Python (graph analytics, NLP, RAG pipelines). Add PyCharm to the
+`pluginVerification` IDE list in `graph-database-plugin/build.gradle` to verify the plugin
+works in PyCharm, then update the `sinceBuild` / compatible products accordingly if successful.
+
+```groovy
+pluginVerification {
+    ides {
+        recommended()
+        ide("PY", "2025.3")
+    }
+}
+```
+
+---
+
 ## Bugs
 
 ### AuraDB — database version not displayed correctly
@@ -86,32 +105,6 @@ specific GRANT syntax is invalid and the test case should be updated to a valid 
 To investigate: verify whether `GRANT CREATE ON DBMS TO admin` is valid Neo4j 5 Cypher.
 If valid, add the missing alternative to `CreatePrivilege`. If not valid, remove or
 replace the test case in `PrivilegeCommands.cyp`.
-
-### Deprecated and internal IntelliJ APIs (verifyPlugin report, v1.1.0)
-
-Reported by the IntelliJ Plugin Verifier against 2025.3 and 2026.1.
-
-#### Scheduled for removal (priority: high)
-
-- `ComponentManager.getComponent(Class)` — called in `QueryHighlighterComponentImpl.<init>()` and `.dispose()`.
-  Replace with service injection via constructor or `project.getService()`.
-
-#### Deprecated (priority: medium)
-
-- `ReadAction.compute(ThrowableComputable)` — called 2x in `FileUtil` (`getScratchFile`, `getDataSourceFile`).
-  Replace with `ReadAction.computeInReadAction()` or `AppExecutorUtil` equivalent.
-- `ActionUtil.invokeAction(...)` — called in `CypherLineMarkerProvider`.
-  Replace with `AnAction.actionPerformed(AnActionEvent)` directly.
-- `PluginDescriptor.isEnabled()` — called in `PluginUtil.isEnabled()`.
-  Replace with `PluginManagerCore.isPluginInstalled()` / `getLoadedPlugins()`.
-- `BalloonPopupBuilderImpl` constructor — called in `GraphPanel.balloonBuilder()`.
-  Use `JBPopupFactory.getInstance().createBalloonBuilder()` instead.
-- `JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS` and `ALLOW_NUMERIC_LEADING_ZEROS` — in `ParametersService`.
-  Migrate to `JsonReadFeature` enum (Jackson 2.12+).
-- `Charsets.UTF_8` (Guava) — in `DocumentationStorage`.
-  Replace with `java.nio.charset.StandardCharsets.UTF_8`.
-
----
 
 ### CALL IN TRANSACTIONS without RETURN causes a spurious parse error
 
