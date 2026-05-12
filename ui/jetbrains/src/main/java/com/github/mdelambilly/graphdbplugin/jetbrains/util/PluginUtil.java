@@ -22,7 +22,7 @@ public class PluginUtil {
     }
 
     public static boolean isEnabled() {
-        return plugin().isEnabled();
+        return plugin() != null;
     }
 
     private static IdeaPluginDescriptor plugin() {

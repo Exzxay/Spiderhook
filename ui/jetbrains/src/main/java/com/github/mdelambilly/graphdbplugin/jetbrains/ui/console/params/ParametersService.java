@@ -10,9 +10,11 @@ package com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.params;
 import com.github.mdelambilly.graphdbplugin.language.cypher.psi.impl.CypherParameterImpl;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.base.Throwables;
 import com.intellij.psi.PsiElement;
 import com.github.mdelambilly.graphdbplugin.language.cypher.psi.CypherTypes;
@@ -24,12 +26,13 @@ import java.util.stream.Collectors;
 
 public class ParametersService {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
-            .configure(JsonParser.Feature.ALLOW_COMMENTS, true)
-            .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
-            .configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
-            .configure(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS, true);
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+            .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+            .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+            .build();
 
     private static final JsonFactory FACTORY = MAPPER.getFactory();
 

@@ -9,7 +9,6 @@ package com.github.mdelambilly.graphdbplugin.jetbrains.component.highlighter;
 
 import com.intellij.openapi.Disposable;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.EditorFactory;
 import com.github.mdelambilly.graphdbplugin.jetbrains.component.highlighter.listener.QueryHighlighterCaretListener;
 import com.github.mdelambilly.graphdbplugin.jetbrains.component.highlighter.listener.QueryHighlighterDocumentListener;
@@ -21,7 +20,7 @@ public class QueryHighlighterComponentImpl implements QueryHighlighterComponent,
     private final SyncedElementHighlighter syncedElementHighlighter;
 
     public QueryHighlighterComponentImpl() {
-        EditorFactory editorFactory = ApplicationManager.getApplication().getComponent(EditorFactory.class);
+        EditorFactory editorFactory = EditorFactory.getInstance();
 
         syncedElementHighlighter = new SyncedElementHighlighter();
         queryHighlighterCaretListener = new QueryHighlighterCaretListener(syncedElementHighlighter);
@@ -33,7 +32,7 @@ public class QueryHighlighterComponentImpl implements QueryHighlighterComponent,
 
     @Override
     public void dispose() {
-        EditorFactory editorFactory = ApplicationManager.getApplication().getComponent(EditorFactory.class);
+        EditorFactory editorFactory = EditorFactory.getInstance();
         if (queryHighlighterCaretListener != null) {
             editorFactory.getEventMulticaster().removeCaretListener(queryHighlighterCaretListener);
         }

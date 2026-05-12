@@ -13,8 +13,8 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiElement;
 import com.github.mdelambilly.graphdbplugin.language.cypher.util.PsiTraversalUtilities;
@@ -53,8 +53,11 @@ public class CypherLineMarkerProvider implements LineMarkerProvider {
                     AllIcons.Actions.Execute,
                     element1 -> "Execute Query",
                     (mouseEvent, psiElement) ->
-                            getDataContext().ifPresent(c ->
-                                    ActionUtil.invokeAction(new ExecuteQueryAction(queryElement), c, "", mouseEvent, null)),
+                            getDataContext().ifPresent(c -> {
+                                ExecuteQueryAction action = new ExecuteQueryAction(queryElement);
+                                AnActionEvent event = AnActionEvent.createFromAnAction(action, mouseEvent, "", c);
+                                action.actionPerformed(event);
+                            }),
                     GutterIconRenderer.Alignment.CENTER,
                     () -> "Execute Query") {
                 @Override

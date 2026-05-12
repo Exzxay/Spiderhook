@@ -20,7 +20,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.components.labels.LinkListener;
-import com.intellij.ui.popup.BalloonPopupBuilderImpl;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.messages.MessageBus;
@@ -175,7 +175,7 @@ public class GraphPanel {
     }
 
     private void balloonBuilder() {
-        final BalloonPopupBuilderImpl builder = new BalloonPopupBuilderImpl(null, balloonLabel);
+        final BalloonBuilder builder = JBPopupFactory.getInstance().createBalloonBuilder(balloonLabel);
 
         final Color bg = lookAndFeelService.getBackgroundColor();
         final Color borderOriginal = lookAndFeelService.getEdgeStrokeColor();

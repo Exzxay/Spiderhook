@@ -7,8 +7,9 @@
  */
 package com.github.mdelambilly.graphdbplugin.language.cypher.documentation.database;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+
+import java.nio.charset.StandardCharsets;
 import com.intellij.openapi.diagnostic.Logger;
 
 import java.net.URL;
@@ -45,7 +46,7 @@ public class DocumentationStorage {
             String filePath = documentationDir + "/" + name + ".html";
             try {
                 URL documentationFile = DocumentationStorage.class.getResource(filePath);
-                String documentation = Resources.toString(documentationFile, Charsets.UTF_8);
+                String documentation = Resources.toString(documentationFile, StandardCharsets.UTF_8);
 
                 cache.put(name.toLowerCase(), documentation);
             } catch (Exception e) {
