@@ -2,6 +2,22 @@
 
 ## Compatibility
 
+### Replace `PluginManager.getPlugin()` in PluginUtil (internal + deprecated in 2026.2 EAP)
+
+Reported by Plugin Verifier against IntelliJ 2026.2 EAP (262.7581.18): `PluginManager.getPlugin(PluginId)`
+is both internal and deprecated. Our fix in v1.1.3 replaced `PluginManagerCore.getPlugin()` with
+`PluginManager.getPlugin()`, but both are being phased out in 2026.2.
+
+File: `ui/jetbrains/src/main/java/.../util/PluginUtil.java`
+
+Needs investigation: find the correct public, non-deprecated API to retrieve an `IdeaPluginDescriptor`
+from within the plugin itself (since `sinceBuild = 253`). Candidate approaches:
+- `PluginClassLoader` from the current classloader (may be internal)
+- A Gradle-filtered `plugin.properties` resource file containing the version
+- Any new public API introduced in 2025.3+ for self-referencing plugin metadata
+
+---
+
 ### Verify compatibility with PyCharm
 
 Neo4j is widely used in Python (graph analytics, NLP, RAG pipelines). Add PyCharm to the
