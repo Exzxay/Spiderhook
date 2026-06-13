@@ -9,7 +9,9 @@ package com.github.mdelambilly.graphdbplugin.jetbrains.util;
 
 import com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.state.DataSourceApi;
 import com.intellij.ide.scratch.ScratchFileService;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -31,19 +33,21 @@ public class FileUtil {
     private static final FileAttribute QUERY_PARAMS_FILE_ATTRIBUTE = new FileAttribute("queryParamsFileAttribute");
 
     public static VirtualFile getDataSourceFile(Project project, DataSourceApi dataSource) throws IOException {
-        return ScratchFileService.getInstance().findFile(
-                GraphDbEditorsConsoleRootType.getInstance(),
-                NameUtil.createDataSourceFileName(dataSource),
-                ScratchFileService.Option.create_if_missing
-        );
+        return ApplicationManager.getApplication().runWriteAction(
+                (ThrowableComputable<VirtualFile, IOException>) () -> ScratchFileService.getInstance().findFile(
+                        GraphDbEditorsConsoleRootType.getInstance(),
+                        NameUtil.createDataSourceFileName(dataSource),
+                        ScratchFileService.Option.create_if_missing
+                ));
     }
 
     public static VirtualFile getScratchFile(Project project, String fileName) throws IOException {
-        return ScratchFileService.getInstance().findFile(
-                ParameterRootType.getInstance(),
-                project.getName() + fileName,
-                ScratchFileService.Option.create_if_missing
-        );
+        return ApplicationManager.getApplication().runWriteAction(
+                (ThrowableComputable<VirtualFile, IOException>) () -> ScratchFileService.getInstance().findFile(
+                        ParameterRootType.getInstance(),
+                        project.getName() + fileName,
+                        ScratchFileService.Option.create_if_missing
+                ));
     }
 
     public static String getParams(VirtualFile file) {
