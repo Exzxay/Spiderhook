@@ -18,6 +18,18 @@ from within the plugin itself (since `sinceBuild = 253`). Candidate approaches:
 
 ---
 
+### Align verifyPlugin with JetBrains Marketplace verification
+
+JetBrains tests against the latest EAP builds at submission time. Our `recommended()` may lag
+behind and miss regressions until after publication.
+
+Options to discuss:
+- Add explicit EAP targets (e.g. `ide("IU", "2026.2")`) alongside `recommended()`
+- Maintenance cost: version strings need updating each major EAP cycle
+- Availability: exact EAP patch builds (e.g. 262.7581.18) may not be downloadable via Gradle
+
+---
+
 ### Verify compatibility with PyCharm
 
 Neo4j is widely used in Python (graph analytics, NLP, RAG pipelines). Add PyCharm to the
