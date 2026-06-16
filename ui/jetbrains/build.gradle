@@ -29,6 +29,12 @@ dependencies {
     testImplementation "org.assertj:assertj-core:$versionAssertj"
     testImplementation "org.mockito:mockito-core:$versionMockito"
 }
+processResources {
+    filesMatching("graphdb-plugin.properties") {
+        expand(pluginVersion: providers.gradleProperty('pluginVersion').get())
+    }
+}
+
 test {
     useJUnitPlatform()
 }

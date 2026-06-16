@@ -7,27 +7,32 @@
  */
 package com.github.mdelambilly.graphdbplugin.jetbrains.util;
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.extensions.PluginId;
-import com.github.mdelambilly.graphdbplugin.platform.GraphConstants;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class PluginUtil {
 
-    private static IdeaPluginDescriptor plugin;
+    private static String version;
 
     public static String getVersion() {
-        return plugin().getVersion();
+        if (version == null) {
+            try (InputStream is = PluginUtil.class.getResourceAsStream("/graphdb-plugin.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "unknown");
+                } else {
+                    version = "unknown";
+                }
+            } catch (IOException e) {
+                version = "unknown";
+            }
+        }
+        return version;
     }
 
     public static boolean isEnabled() {
-        return plugin() != null;
-    }
-
-    private static IdeaPluginDescriptor plugin() {
-        if (plugin == null) {
-            plugin = PluginManager.getPlugin(PluginId.getId(GraphConstants.PLUGIN_ID));
-        }
-        return plugin;
+        return true;
     }
 }
