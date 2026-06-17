@@ -2,22 +2,6 @@
 
 ## Compatibility
 
-### Replace `PluginManager.getPlugin()` in PluginUtil (internal + deprecated in 2026.2 EAP)
-
-Reported by Plugin Verifier against IntelliJ 2026.2 EAP (262.7581.18): `PluginManager.getPlugin(PluginId)`
-is both internal and deprecated. Our fix in v1.1.3 replaced `PluginManagerCore.getPlugin()` with
-`PluginManager.getPlugin()`, but both are being phased out in 2026.2.
-
-File: `ui/jetbrains/src/main/java/.../util/PluginUtil.java`
-
-Needs investigation: find the correct public, non-deprecated API to retrieve an `IdeaPluginDescriptor`
-from within the plugin itself (since `sinceBuild = 253`). Candidate approaches:
-- `PluginClassLoader` from the current classloader (may be internal)
-- A Gradle-filtered `plugin.properties` resource file containing the version
-- Any new public API introduced in 2025.3+ for self-referencing plugin metadata
-
----
-
 ### Align verifyPlugin with JetBrains Marketplace verification
 
 JetBrains tests against the latest EAP builds at submission time. Our `recommended()` may lag
@@ -58,6 +42,18 @@ no longer matches what the server returns.
 
 To investigate: check what `RETURN neo4j.version()` (or the driver's `ServerInfo`) returns
 on an AuraDB instance and compare with the expected format in `VersionService`.
+
+### Per-file Cypher parameters disappear along with their management tab
+
+Parameters defined for a specific Cypher file disappear after some action (connection change,
+IDE restart, or tab switch). The tab used to manage those parameters also disappears, leaving
+no way to re-add them without reopening the file or reconnecting.
+
+To investigate: check how per-file parameters are persisted and how the parameter tab is
+shown/hidden — likely a lifecycle issue in the console UI where the tab is not restored
+when the editor is re-focused or the connection is re-established.
+
+---
 
 ### Parameters saved to global scope instead of per-connection
 
