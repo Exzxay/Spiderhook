@@ -7,14 +7,24 @@
  */
 package com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.graph;
 
+import com.github.mdelambilly.graphdbplugin.database.api.data.GraphPropertyContainer;
+import com.github.mdelambilly.graphdbplugin.jetbrains.actions.execute.ExecuteQueryAction;
+import com.github.mdelambilly.graphdbplugin.jetbrains.actions.execute.ExecuteQueryEvent;
 import com.github.mdelambilly.graphdbplugin.jetbrains.actions.execute.ExecuteQueryPayload;
+import com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.DataSourcesComponent;
 import com.github.mdelambilly.graphdbplugin.jetbrains.component.datasource.state.DataSourceApi;
 import com.github.mdelambilly.graphdbplugin.jetbrains.ui.datasource.tree.TreeMouseAdapter;
+import com.github.mdelambilly.graphdbplugin.jetbrains.ui.datasource.tree.TreeNodeModelApi;
 import com.github.mdelambilly.graphdbplugin.jetbrains.ui.helpers.UiHelper;
 import com.github.mdelambilly.graphdbplugin.jetbrains.ui.renderes.tree.PropertyTreeCellRenderer;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBLabel;
@@ -34,19 +44,31 @@ import com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.event.PluginSet
 import com.github.mdelambilly.graphdbplugin.platform.GraphConstants.ToolWindow.Tabs;
 import com.github.mdelambilly.graphdbplugin.visualization.PrefuseVisualization;
 import com.github.mdelambilly.graphdbplugin.visualization.services.LookAndFeelService;
+
+import org.bouncycastle.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import prefuse.visual.VisualItem;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.Map;
 
 import static com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.event.OpenTabEvent.*;
 import static com.github.mdelambilly.graphdbplugin.visualization.util.DisplayUtil.*;
 
 public class GraphPanel {
+
+    //Toolbar
+    private JBPopup nodeToolbarPopup;
+    private final LinkedList<String> graphhistory = new LinkedList<>();
+    private MessageBus messageBus;
+    private String lectureviewhistory= "lectureviewhistory";
+    //
 
     private PrefuseVisualization visualization;
     private LookAndFeelService lookAndFeelService;
@@ -58,15 +80,23 @@ public class GraphPanel {
     private DefaultTreeModel entityDetailsTreeModel;
     private DataSourceApi dataSource;
 
+
+
+    private Project project;
+
     public GraphPanel() {
         entityDetailsTreeModel = new DefaultTreeModel(null);
     }
 
     public void initialize(@NotNull final GraphConsoleView graphConsoleView, @NotNull final Project project) {
         MessageBus messageBus = project.getMessageBus();
+        this.messageBus = messageBus;
         this.lookAndFeelService = graphConsoleView.getLookAndFeelService();
         this.entityDetailsTree = graphConsoleView.getEntityDetailsTree();
         entityDetailsTree.addMouseListener(new TreeMouseAdapter());
+        this.project = project;
+        graphhistory.add(lectureviewhistory);
+
 
         // Bootstrap visualisation
         visualization = new PrefuseVisualization(lookAndFeelService);
@@ -109,6 +139,7 @@ public class GraphPanel {
         });
 
         messageBus.connect().subscribe(PluginSettingsUpdated.TOPIC, visualization::updateSettings);
+        //messageBus.connect().subscribe(PluginSettingsUpdated.TOPIC);
 
         // Tooltips
         balloonBuilder();
@@ -125,12 +156,88 @@ public class GraphPanel {
         PatchedDefaultMutableTreeNode root = UiHelper.nodeToTreeNode(node.getRepresentation(), node, dataSource);
         entityDetailsTreeModel.setRoot(root);
 
+        String k;
         Enumeration childs = root.children();
         while (childs.hasMoreElements()) {
             PatchedDefaultMutableTreeNode treeNode
                     = (PatchedDefaultMutableTreeNode) childs.nextElement();
             entityDetailsTree.expandPath(new TreePath(treeNode.getPath()));
         }
+        showNodeToolbar(node,item,e);
+
+
+    }
+    private void showNodeToolbar(GraphNode node, VisualItem item, MouseEvent e) {
+        if (nodeToolbarPopup != null && !nodeToolbarPopup.isDisposed()) {
+            nodeToolbarPopup.cancel();
+        }
+
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+        JButton inspectButton = new JButton("Inspect");
+        inspectButton.addActionListener(event -> inspectNode(node));
+
+        JButton editButton = new JButton("Go Back");
+        editButton.addActionListener(event -> goBackfromNode(node));
+
+        JButton deleteButton = new JButton("Lecture View");
+        deleteButton.addActionListener(event -> gotoLectureView());
+
+        toolbar.add(inspectButton);
+        toolbar.add(editButton);
+        toolbar.add(deleteButton);
+
+        nodeToolbarPopup = JBPopupFactory.getInstance()
+                .createComponentPopupBuilder(toolbar, toolbar)
+                .setCancelOnClickOutside(true)
+                .setCancelOnWindowDeactivation(true)
+                .setRequestFocus(true)
+                .createPopup();
+
+        nodeToolbarPopup.show(new RelativePoint(e.getComponent(), e.getPoint()));
+    }
+
+    private void inspectNode(GraphNode node) {
+
+        String nodename = node.getPropertyContainer().getProperties().get("name").toString();//get name from node
+        graphhistory.add(nodename);
+        String query = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(query,nodename));
+        executeToolbarQuery(p);
+        nodeToolbarPopup.dispose();
+    }
+
+    private void goBackfromNode(GraphNode node) {
+        if (graphhistory.isEmpty()) {
+            graphhistory.add(lectureviewhistory);
+            gotoLectureView();
+        }
+        else if (graphhistory.size()<=2) {
+            gotoLectureView();
+        }
+        else
+        {
+            graphhistory.removeLast();
+            String nodename = graphhistory.getLast();//name of the previous node
+            String query = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
+            ExecuteQueryPayload p = new ExecuteQueryPayload(String.format(query, nodename));
+            executeToolbarQuery(p);
+            nodeToolbarPopup.dispose();
+        }
+    }
+
+    private void gotoLectureView() {
+        String query = "Match(n:Lecture)-[r]-(s:Lecture)\nRETURN n,r,s";// go to standard view
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(query));
+        executeToolbarQuery(p);
+        for(int i = 0;i<graphhistory.size()-1;i++)
+            graphhistory.removeLast();
+
+        nodeToolbarPopup.dispose();
+    }
+
+    private void executeToolbarQuery(ExecuteQueryPayload payload) {
+        messageBus.syncPublisher(ExecuteQueryEvent.EXECUTE_QUERY_TOPIC).executeQuery(dataSource, payload);
     }
 
     public void showRelationshipData(GraphRelationship relationship, VisualItem item, MouseEvent e) {
@@ -194,6 +301,8 @@ public class GraphPanel {
     }
 
     public void hideTooltip(GraphEntity entity, VisualItem visualItem, MouseEvent mouseEvent) {
-        balloon.dispose();
+        if (balloon != null && !balloon.isDisposed()) {
+            balloon.dispose();
+        }
     }
 }

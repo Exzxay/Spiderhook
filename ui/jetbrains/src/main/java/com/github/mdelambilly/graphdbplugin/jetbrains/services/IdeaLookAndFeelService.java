@@ -9,8 +9,9 @@ package com.github.mdelambilly.graphdbplugin.jetbrains.services;
 
 import com.github.mdelambilly.graphdbplugin.jetbrains.component.settings.SettingsComponent;
 import com.intellij.ui.JBColor;
-import com.intellij.util.ui.UIUtil;
+//import com.intellij.util.ui.UIUti;
 import com.github.mdelambilly.graphdbplugin.visualization.services.LookAndFeelService;
+import com.intellij.util.ui.UIUtil;
 
 import java.awt.*;
 
