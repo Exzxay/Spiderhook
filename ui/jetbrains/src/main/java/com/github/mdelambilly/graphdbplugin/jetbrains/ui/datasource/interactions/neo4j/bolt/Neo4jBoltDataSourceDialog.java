@@ -53,6 +53,11 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
     private JTextArea auraCredentialsArea;
     private JBTabbedPane tabs;
 
+    //fixed parameters
+    private String fixedprotocoll = "neo4j";
+    private String fixeduser = "neo4j";
+
+
     public Neo4jBoltDataSourceDialog(
             @NotNull final Project project,
             @NotNull final DataSourcesView dataSourcesView,
@@ -114,6 +119,7 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
 
             dataSourceNameField.setText(dataSourceToEdit.getName());
 
+
             for (int i = 0; i < protocolComboBox.getItemCount(); i++) {
                 if (protocolComboBox.getItemAt(i).equals(protocol)) {
                     protocolComboBox.setSelectedIndex(i);
@@ -130,8 +136,9 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
 
             hostField.setText(host);
             portField.setText(port);
-            databaseField.setText(database);
+
             userField.setText(user);
+            databaseField.setText(database);
             passwordField.setText(password);
         }
         return scrollPane;
@@ -162,16 +169,17 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
         // --- General tab panel (8 rows) ---
         JPanel generalPanel = new JPanel(new GridBagLayout());
         generalPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
-        addLabelAndField(generalPanel, "Protocol",       protocolComboBox,  0, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "Host",           hostField,         1, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "Port",           portField,         2, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "Database",       databaseField,     3, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "Authentication", authTypeComboBox,  4, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "User",           userField,         5, labelInsets, fieldInsets);
-        addLabelAndField(generalPanel, "Password",       passwordField,     6, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "Protocol",       protocolComboBox,  0, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "Host",           hostField,         1, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "Port",           portField,         2, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "Database",       databaseField,     3, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "Authentication", authTypeComboBox,  4, labelInsets, fieldInsets);
+        //addLabelAndField(generalPanel, "User",           userField,         5, labelInsets, fieldInsets);
+        addLabelAndField(generalPanel, "Password",       passwordField,     0, labelInsets, fieldInsets);
 
         GridBagConstraints bc = new GridBagConstraints();
-        bc.gridy = 7; bc.gridx = 1;
+        bc.gridy = 1; bc.gridx = 1;
+        //bc.gridy = 7; bc.gridx = 1;
         bc.fill = GridBagConstraints.NONE; bc.anchor = GridBagConstraints.WEST;
         bc.insets = new Insets(4, 0, 4, 4);
         generalPanel.add(testConnectionButton, bc);
@@ -369,12 +377,12 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
     private Data extractData() {
         return new Data(
                 dataSourceNameField.getText(),
-                protocolComboBox.getItemAt(protocolComboBox.getSelectedIndex()),
-                hostField.getText().trim(),
-                portField.getText(),
-                authTypeComboBox.getItemAt(authTypeComboBox.getSelectedIndex()),
-                databaseField.getText(),
-                userField.getText(),
+                //protocolComboBox.getItemAt(protocolComboBox.getSelectedIndex()),
+                //hostField.getText().trim(),
+                //portField.getText(),
+                //authTypeComboBox.getItemAt(authTypeComboBox.getSelectedIndex()),
+                //databaseField.getText(),
+                //userField.getText(),
                 String.valueOf(passwordField.getPassword())  // TODO: use password API?
         );
     }
@@ -382,22 +390,22 @@ public class Neo4jBoltDataSourceDialog extends DataSourceDialog {
     private static final class Data {
 
         private final String dataSourceName;
-        private final String protocol;
-        private final String host;
-        private final String port;
-        private final String authType;
-        private final String database;
-        private final String user;
+        private final String protocol  = "neo4j";
+        private final String host = "localhost";
+        private final String port = "7687";
+        private final String authType = "User & Password";
+        private final String database = "";
+        private final String user = "neo4j";
         private final String password;
 
-        public Data(String dataSourceName, String protocol, String host, String port, String authType, String database, String user, String password) {
+        public Data(String dataSourceName,  String password) {
             this.dataSourceName = dataSourceName;
-            this.protocol = protocol;
-            this.host = host;
-            this.port = port;
-            this.authType = authType;
-            this.database = database;
-            this.user = user;
+           //this.protocol = protocol;
+            //this.host = host;
+            //this.port = port;
+            //this.authType = authType;
+            //this.database = database;
+            //this.user = user;
             this.password = password;
         }
     }

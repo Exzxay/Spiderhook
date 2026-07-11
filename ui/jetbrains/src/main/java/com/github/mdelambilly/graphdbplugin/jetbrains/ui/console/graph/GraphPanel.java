@@ -69,6 +69,7 @@ public class GraphPanel {
     private final LinkedList<String> graphhistory = new LinkedList<>();
     private MessageBus messageBus;
     private String overviewHistory= "overviewHistory";
+    public static boolean toOverview = false;
 
     //querrys
     private String inspectquerry = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
@@ -183,6 +184,8 @@ public class GraphPanel {
             nodeToolbarPopup.cancel();
         }
 
+        checkforOverviewChange();//remove history if overview Querry was used
+
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
         JButton inspectButton = new JButton("Inspect");
@@ -198,10 +201,16 @@ public class GraphPanel {
         JButton graphButton = new JButton("Full Graph");
         graphButton.addActionListener(event -> showFullGraph());
 
+        /*JButton devButton = new JButton("Full Graph");
+        devButton.addActionListener(event -> doQueryforOverview());
+        toolbar.add(devButton);
+         */
+
         toolbar.add(inspectButton);
         toolbar.add(gobackButton);
         toolbar.add(overviewButton);
         toolbar.add(graphButton);
+
 
         nodeToolbarPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(toolbar, toolbar)
@@ -232,6 +241,10 @@ public class GraphPanel {
             graphhistory.add(overviewHistory);
             gotoOverView();
         }
+        else if(graphhistory.size()==1)
+        {
+            ;
+        }
         else if (graphhistory.size()<=2) {
             gotoOverView();
         }
@@ -241,16 +254,19 @@ public class GraphPanel {
             String nodename = graphhistory.getLast();//name of the previous node
             ExecuteQueryPayload p = new ExecuteQueryPayload(String.format(gobackquerry, nodename));
             executeToolbarQuery(p);
-            nodeToolbarPopup.dispose();
+
         }
+        nodeToolbarPopup.dispose();
     }
 
     private void gotoOverView() {
-        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(overviewquerry));
-        executeToolbarQuery(p);
-        for(int i = 0;i<graphhistory.size()-1;i++)
-            graphhistory.removeLast();
-
+        if(graphhistory.size() >=2)
+        {
+            ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(overviewquerry));
+            executeToolbarQuery(p);
+            for(int i = 0;i<graphhistory.size()-1;i++)
+                graphhistory.removeLast();
+        }
         nodeToolbarPopup.dispose();
     }
 
@@ -335,4 +351,17 @@ public class GraphPanel {
             balloon.dispose();
         }
     }
+
+    private void checkforOverviewChange()
+    {
+        if (toOverview)
+        {
+            graphhistory.removeAll(graphhistory);
+            graphhistory.add(overviewquerry);
+            toOverview = false;
+        }
+
+    }
+
+
 }

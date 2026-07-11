@@ -225,6 +225,13 @@
         <group id="GraphDatabaseConsoleToolWindowActions"
                text="Graph Database Console Tool Window Actions">
 
+            <action id="GraphDatabaseConsoleToolWindowActions.OverviewQuerry"
+                    class="com.github.mdelambilly.graphdbplugin.jetbrains.actions.execute.ExecuteOverviewAction"
+                    text="Show Overview"
+                    icon="AllIcons.Toolwindows.ToolWindowRun"
+                    description="Show Overview">
+            </action>
+            <!--- OutdatedActions
             <action id="GraphDatabaseConsoleToolWindowActions.ExecuteQuery"
                     class="com.github.mdelambilly.graphdbplugin.jetbrains.actions.execute.ExecuteQueryAction"
                     text="Execute Query"
@@ -243,6 +250,9 @@
                     icon="AllIcons.Actions.Copy"
                     description="Copy query result to clipboard">
             </action>
+        -->
+
+
         </group>
 
         <group id="GraphDatabaseFileActions"

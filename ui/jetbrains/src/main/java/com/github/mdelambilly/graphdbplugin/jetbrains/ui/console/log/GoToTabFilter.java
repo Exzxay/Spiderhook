@@ -39,11 +39,9 @@ public class GoToTabFilter implements Filter {
     public Result applyFilter(@NotNull String textLine, int endPoint) {
         List<ResultItem> links = Stream.of(
             createLink(textLine, endPoint, GRAPH_TAB_LINK, Tabs.GRAPH),
-            createLink(textLine, endPoint, TABLE_TAB_LINK, Tabs.TABLE),
-            createLink(textLine, endPoint, RAW_TAB_LINK, Tabs.RAW))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
+            createLink(textLine, endPoint, TABLE_TAB_LINK, Tabs.TABLE))
+            //createLink(textLine, endPoint, RAW_TAB_LINK, Tabs.RAW))
+         .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         return new Result(links);
     }

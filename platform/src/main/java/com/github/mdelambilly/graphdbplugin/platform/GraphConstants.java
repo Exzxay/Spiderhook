@@ -18,11 +18,11 @@ public final class GraphConstants {
         public static final String CONSOLE_TOOL_WINDOW = "Graph Database Console";
 
         public static class Tabs {
-            public static final String LOG = "Log";
+          //  public static final String LOG = "Log";
             public static final String GRAPH = "Graph";
             public static final String TABLE = "Table";
-            public static final String PARAMETERS = "Parameters";
-            public static final String RAW = "Raw";
+            //public static final String PARAMETERS = "Parameters";
+            //public static final String RAW = "Raw";
         }
     }
 

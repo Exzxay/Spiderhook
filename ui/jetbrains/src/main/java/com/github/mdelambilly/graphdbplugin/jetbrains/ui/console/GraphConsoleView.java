@@ -157,11 +157,11 @@ public class GraphConsoleView implements Disposable {
 
         // defaultTabContainer is hidden immediately in initToolWindow; kept to avoid NPE
         defaultTabContainer = new JBTabbedPane();
-        defaultTabContainer.add(Tabs.LOG, logTab);
+        //defaultTabContainer.add(Tabs.LOG, logTab);
         defaultTabContainer.add(Tabs.GRAPH, graphTab);
         defaultTabContainer.add(Tabs.TABLE, tableScrollPane);
-        defaultTabContainer.add(Tabs.PARAMETERS, parametersTab);
-        defaultTabContainer.add(Tabs.RAW, rawTab);
+        //defaultTabContainer.add(Tabs.PARAMETERS, parametersTab);
+        //defaultTabContainer.add(Tabs.RAW, rawTab);
 
         // --- consoleTabs via public JBTabsFactory ---
         consoleTabs = JBTabsFactory.createTabs(null, this);
@@ -205,16 +205,13 @@ public class GraphConsoleView implements Disposable {
             defaultTabContainer.setVisible(false);
 
             // Tabs
-            consoleTabs.addTab(new TabInfo(logTab)
-                .setText(Tabs.LOG));
+           // consoleTabs.addTab(new TabInfo(logTab).setText(Tabs.LOG));
             consoleTabs.addTab(new TabInfo(graphTab)
                 .setText(Tabs.GRAPH));
             consoleTabs.addTab(new TabInfo(tableScrollPane)
                 .setText(Tabs.TABLE));
-            consoleTabs.addTab(new TabInfo(rawTab)
-                .setText(Tabs.RAW));
-            consoleTabs.addTab(new TabInfo(parametersTab)
-                .setText(Tabs.PARAMETERS));
+            //consoleTabs.addTab(new TabInfo(rawTab).setText(Tabs.RAW));
+            //consoleTabs.addTab(new TabInfo(parametersTab).setText(Tabs.PARAMETERS));
             consoleTabs.setSelectionChangeHandler((info, requestFocus, doChangeSelection) -> {
                 ActionCallback callback = doChangeSelection.run();
                 graphPanel.resetPan();
