@@ -56,6 +56,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.mdelambilly.graphdbplugin.jetbrains.ui.console.event.OpenTabEvent.*;
@@ -67,7 +68,15 @@ public class GraphPanel {
     private JBPopup nodeToolbarPopup;
     private final LinkedList<String> graphhistory = new LinkedList<>();
     private MessageBus messageBus;
-    private String lectureviewhistory= "lectureviewhistory";
+    private String overviewHistory= "overviewHistory";
+
+    //querrys
+    private String inspectquerry = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
+    private String gobackquerry = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
+    private String overviewquerry = "MATCH(n)-[r]-(m)\nWHERE NOT(n:Subtopic  OR m:Subtopic)\nreturn n,r,m";
+    private String fullgraphquerry = "Match(n)-[r]-(s)\nRETURN n,r,s";
+
+
     //
 
     private PrefuseVisualization visualization;
@@ -95,7 +104,9 @@ public class GraphPanel {
         this.entityDetailsTree = graphConsoleView.getEntityDetailsTree();
         entityDetailsTree.addMouseListener(new TreeMouseAdapter());
         this.project = project;
-        graphhistory.add(lectureviewhistory);
+        graphhistory.add(overviewquerry);
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(overviewquerry);
+        executeToolbarQuery(p);
 
 
         // Bootstrap visualisation
@@ -177,15 +188,20 @@ public class GraphPanel {
         JButton inspectButton = new JButton("Inspect");
         inspectButton.addActionListener(event -> inspectNode(node));
 
-        JButton editButton = new JButton("Go Back");
-        editButton.addActionListener(event -> goBackfromNode(node));
+        JButton gobackButton = new JButton("Go Back");
+        gobackButton.addActionListener(event -> goBackfromNode(node));
 
-        JButton deleteButton = new JButton("Lecture View");
-        deleteButton.addActionListener(event -> gotoLectureView());
+        JButton overviewButton = new JButton("Overview");
+        overviewButton.addActionListener(event -> gotoOverView());
+
+
+        JButton graphButton = new JButton("Full Graph");
+        graphButton.addActionListener(event -> showFullGraph());
 
         toolbar.add(inspectButton);
-        toolbar.add(editButton);
-        toolbar.add(deleteButton);
+        toolbar.add(gobackButton);
+        toolbar.add(overviewButton);
+        toolbar.add(graphButton);
 
         nodeToolbarPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(toolbar, toolbar)
@@ -198,43 +214,57 @@ public class GraphPanel {
     }
 
     private void inspectNode(GraphNode node) {
+        List<String> labels = node.getTypes();
 
+        if(labels.getFirst().equals("Subtopic")|| labels.getFirst().equals("Start")) {
+            return;
+        }
         String nodename = node.getPropertyContainer().getProperties().get("name").toString();//get name from node
-        graphhistory.add(nodename);
-        String query = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
-        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(query,nodename));
+        String query = String.format(inspectquerry,nodename);
+        graphhistory.add(query);
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(query);
         executeToolbarQuery(p);
         nodeToolbarPopup.dispose();
     }
 
     private void goBackfromNode(GraphNode node) {
         if (graphhistory.isEmpty()) {
-            graphhistory.add(lectureviewhistory);
-            gotoLectureView();
+            graphhistory.add(overviewHistory);
+            gotoOverView();
         }
         else if (graphhistory.size()<=2) {
-            gotoLectureView();
+            gotoOverView();
         }
         else
         {
             graphhistory.removeLast();
             String nodename = graphhistory.getLast();//name of the previous node
-            String query = "Match(n)-[r]-(s)\nWHERE n.name = '%s'\nRETURN n,r,s";
-            ExecuteQueryPayload p = new ExecuteQueryPayload(String.format(query, nodename));
+            ExecuteQueryPayload p = new ExecuteQueryPayload(String.format(gobackquerry, nodename));
             executeToolbarQuery(p);
             nodeToolbarPopup.dispose();
         }
     }
 
-    private void gotoLectureView() {
-        String query = "Match(n:Lecture)-[r]-(s:Lecture)\nRETURN n,r,s";// go to standard view
-        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(query));
+    private void gotoOverView() {
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(overviewquerry));
         executeToolbarQuery(p);
         for(int i = 0;i<graphhistory.size()-1;i++)
             graphhistory.removeLast();
 
         nodeToolbarPopup.dispose();
     }
+
+    private void showFullGraph() {
+
+        ExecuteQueryPayload p  =new ExecuteQueryPayload(String.format(fullgraphquerry));
+        executeToolbarQuery(p);
+        for(int i = 0;i<graphhistory.size()-1;i++)
+            graphhistory.removeLast();
+
+        nodeToolbarPopup.dispose();
+    }
+
+
 
     private void executeToolbarQuery(ExecuteQueryPayload payload) {
         messageBus.syncPublisher(ExecuteQueryEvent.EXECUTE_QUERY_TOPIC).executeQuery(dataSource, payload);
